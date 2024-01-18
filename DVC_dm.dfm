@@ -1,17 +1,17 @@
 object dmDVC: TdmDVC
   OnCreate = DataModuleCreate
-  Height = 804
+  Height = 926
   Width = 1116
   object sqlcDateView: TSQLConnection
     ConnectionName = 'DateView_bromo2'
-    DriverName = 'DevartFirebird'
+    DriverName = 'Firebird'
     LoginPrompt = False
     Params.Strings = (
       'VendorLibOsx=libfbclient.dylib'
       'GetDriverFunc=getSQLDriverFirebird'
       'LibraryName=dbexpida41.dll'
-      'VendorLib=c:\exe64\fbclient.dll'
-      'DataBase=bromo2.usask.ca:s:/data/firebird/dateview2021v30.fdb'
+      'VendorLib=c:\exe32\fbclient.dll'
+      'DataBase=bromo2.usask.ca:s:\data\firebird\dateview2021v30.fdb'
       'User_Name=SYSDBA'
       'Password=V0lcano3^'
       'SQLDialect=3'
@@ -27,14 +27,9 @@ object dmDVC: TdmDVC
         'MetaDataPackageLoader=TDBXDevartInterBaseMetaDataCommandFactory,' +
         'DbxDevartInterBaseDriver260.bpl'
       'DriverUnit=DbxDevartInterBase'
-      'CharLength=1'
-      'EnableBCD=false'
       'OptimizedNumerics=false'
-      'LongStrings=True'
-      'UseQuoteChar=False'
-      'FetchAll=False'
-      'UseUnicode=False'
-      '')
+      'CharLength=1')
+    Connected = True
     Left = 36
     Top = 14
   end
@@ -494,7 +489,6 @@ object dmDVC: TdmDVC
     Top = 284
   end
   object cdsCountryRecords: TClientDataSet
-    Active = True
     Aggregates = <>
     Params = <>
     ProviderName = 'dspCountryRecords'
@@ -552,7 +546,6 @@ object dmDVC: TdmDVC
     Top = 332
   end
   object cdsCountryCount: TClientDataSet
-    Active = True
     Aggregates = <>
     DataSetField = cdsCountryRecordsqCountryCount
     Params = <>
@@ -4075,5 +4068,481 @@ object dmDVC: TdmDVC
     DataSet = qRecordIDsDup
     Left = 948
     Top = 240
+  end
+  object qGDUs: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftString
+        Name = 'RCNMDLID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select * '
+      'from GDUs'
+      'where GDUs.GDUID < 20000'
+      'and GDUs.RCNMDLID = :RCNMDLID')
+    SQLConnection = sqlcDateView
+    Left = 948
+    Top = 371
+  end
+  object dspGDUs: TDataSetProvider
+    DataSet = qGDUs
+    Left = 978
+    Top = 371
+  end
+  object cdsGDUs: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDUs'
+    Left = 1006
+    Top = 371
+    object cdsGDUsGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      KeyFields = 'GDUID'
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDUsGDUNAME: TStringField
+      FieldName = 'GDUNAME'
+      Required = True
+      Size = 100
+    end
+    object cdsGDUsRCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      Required = True
+      Size = 10
+    end
+    object cdsGDUsMAXIGNEOUSAGE: TFloatField
+      FieldName = 'MAXIGNEOUSAGE'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUsMAXMETAMORPHICAGE: TFloatField
+      FieldName = 'MAXMETAMORPHICAGE'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUsMAXCRUSTALRESAGE: TFloatField
+      FieldName = 'MAXCRUSTALRESAGE'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUsMAXDETRITALAGE: TFloatField
+      FieldName = 'MAXDETRITALAGE'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUsLIMOLDP: TFloatField
+      FieldName = 'LIMOLDP'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUsMAXAGEREFS: TStringField
+      FieldName = 'MAXAGEREFS'
+      Size = 255
+    end
+  end
+  object dsGDUs: TDataSource
+    DataSet = cdsGDUs
+    Left = 1034
+    Top = 371
+  end
+  object qIsoGDU: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <>
+    SQL.Strings = (
+      'select * '
+      'from IsoGDU'
+      '')
+    SQLConnection = sqlcDateView
+    Left = 948
+    Top = 435
+  end
+  object dspIsoGDU: TDataSetProvider
+    DataSet = qIsoGDU
+    Left = 978
+    Top = 435
+  end
+  object cdsIsoGDU: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspIsoGDU'
+    Left = 1006
+    Top = 435
+    object cdsIsoGDURECORDID: TIntegerField
+      FieldName = 'RECORDID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object cdsIsoGDURCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Size = 10
+    end
+    object cdsIsoGDUGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+  end
+  object dsIsoGDU: TDataSource
+    DataSet = cdsIsoGDU
+    Left = 1034
+    Top = 435
+  end
+  object qGDUPDF: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftString
+        Name = 'RcnMdlID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftString
+        Name = 'CurveInterp'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select * '
+      'from GDUsPDF'
+      'where GDUSPDF.RCNMDLID= :RcnMdlID'
+      'and GDUSPDF.GDUID = :GDUID'
+      'and GDUSPDF.CurveInterp = :CurveInterp'
+      'order by GDUSPDF.CurveOrder,GDUSPDF.PDFOrder'
+      ''
+      ''
+      '')
+    SQLConnection = sqlcDateView
+    Left = 948
+    Top = 499
+  end
+  object dspGDUPDF: TDataSetProvider
+    DataSet = qGDUPDF
+    Left = 978
+    Top = 499
+  end
+  object cdsGDUPDF: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDUPDF'
+    Left = 1006
+    Top = 499
+    object cdsGDUPDFRCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Size = 10
+    end
+    object cdsGDUPDFGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDUPDFCURVEORDER: TSmallintField
+      FieldName = 'CURVEORDER'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object cdsGDUPDFPDFORDER: TIntegerField
+      FieldName = 'PDFORDER'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object cdsGDUPDFAGE: TFloatField
+      FieldName = 'AGE'
+      Required = True
+      DisplayFormat = '###0.000'
+    end
+    object cdsGDUPDFPDFVALUE: TFloatField
+      FieldName = 'PDFVALUE'
+      Required = True
+      DisplayFormat = '###.00000'
+    end
+    object cdsGDUPDFCURVEINTERP: TStringField
+      FieldName = 'CURVEINTERP'
+      Required = True
+      Size = 5
+    end
+  end
+  object dsGDUPDF: TDataSource
+    DataSet = cdsGDUPDF
+    Left = 1034
+    Top = 499
+  end
+  object qGDURecordAges: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <>
+    SQL.Strings = (
+      'select ISOGDU.RecordID,IsoGDU.RCNMDLID,IsoGDU.GDUID,'
+      '  IsoRGR30.RAGE,ISORGR30.RAGEPERROR,ISORGR30.RAGEMERROR,'
+      '  ISORGR30.INTERPABR'
+      'from ISOGDU,ISORGR30'
+      'where isorgr30.recordid=isogdu.recordid'
+      'and ISOGDU.RCNMDLID= '#39'PalaeoPlat'#39
+      'and ISOGDU.GDUID = 11000'
+      'and (ISORGR30.INTERPABR='#39'CrysI'#39' or ISORGR30.InterpABR='#39'CrysV'#39')'
+      'order by ISORGR30.RECORDID'
+      '')
+    SQLConnection = sqlcDateView
+    Left = 948
+    Top = 563
+  end
+  object dspGDURecordAges: TDataSetProvider
+    DataSet = qGDURecordAges
+    Left = 978
+    Top = 563
+  end
+  object cdsGDURecordAges: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDURecordAges'
+    Left = 1006
+    Top = 563
+    object cdsGDURecordAgesRECORDID: TIntegerField
+      FieldName = 'RECORDID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object cdsGDURecordAgesRCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Size = 10
+    end
+    object cdsGDURecordAgesGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDURecordAgesRAGE: TFloatField
+      FieldName = 'RAGE'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+    end
+    object cdsGDURecordAgesRAGEPERROR: TFloatField
+      FieldName = 'RAGEPERROR'
+    end
+    object cdsGDURecordAgesRAGEMERROR: TFloatField
+      FieldName = 'RAGEMERROR'
+    end
+    object cdsGDURecordAgesINTERPABR: TStringField
+      FieldName = 'INTERPABR'
+      Required = True
+      Size = 5
+    end
+  end
+  object dsGDURecordAges: TDataSource
+    DataSet = cdsGDURecordAges
+    Left = 1034
+    Top = 563
+  end
+  object qDelete: TSQLQuery
+    MaxBlobSize = -1
+    Params = <>
+    SQLConnection = sqlcDateView
+    Left = 920
+    Top = 620
+  end
+  object qUpdate: TSQLQuery
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftInteger
+        Name = 'CountRecords'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftFloat
+        Name = 'MaxAge'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftTimeStamp
+        Name = 'DateUpdated'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftString
+        Name = 'RcnMdlID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'UPDATE GDUS'
+      'SET GDUS.CountIgneous = :CountRecords,'
+      '       GDUS.MaxIgneousAge = :MaxAge,'
+      '       GDUS.DateUpdated := :DateUpdated'
+      'WHERE GDUS.GDUID = :GDUID'
+      'and GDUS.RCNMDLID = :RcnMdlID')
+    SQLConnection = sqlcDateView
+    Left = 968
+    Top = 620
+  end
+  object qMaxAgeRef: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftString
+        Name = 'sourcetypeid'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftString
+        Name = 'rcnmdlid'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select gdus.gduid, gdus.maxigneousage, isogdu.recordid,'
+      '  isorgr30.rage,sourcelist.sourceshort'
+      'from gdus,isogdu,isorgr30, sourcea, sourcelist'
+      'where gdus.gduid=isogdu.gduid'
+      'and gdus.rcnmdlid=isogdu.rcnmdlid'
+      'and gdus.maxigneousage=isorgr30.rage'
+      'and isogdu.recordid=isorgr30.recordid'
+      
+        'and ((isorgr30.interpabr='#39'CrysI'#39') or (isorgr30.interpabr='#39'CrysV'#39 +
+        '))'
+      'and isorgr30.recordid=sourcea.recordid'
+      'and sourcea.refnum=sourcelist.sourcenum'
+      'and sourcea.sourcetypeid=:sourcetypeid'
+      'and gdus.gduid = :gduid'
+      'and gdus.rcnmdlID = :rcnmdlid')
+    SQLConnection = sqlcDateView
+    Left = 956
+    Top = 683
+  end
+  object dspMaxAgeRef: TDataSetProvider
+    DataSet = qMaxAgeRef
+    Left = 986
+    Top = 683
+  end
+  object cdsMaxAgeRef: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspMaxAgeRef'
+    Left = 1014
+    Top = 683
+    object cdsMaxAgeRefGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsMaxAgeRefMAXIGNEOUSAGE: TFloatField
+      FieldName = 'MAXIGNEOUSAGE'
+      Required = True
+    end
+    object cdsMaxAgeRefRECORDID: TIntegerField
+      FieldName = 'RECORDID'
+      Required = True
+    end
+    object cdsMaxAgeRefRAGE: TFloatField
+      FieldName = 'RAGE'
+    end
+    object cdsMaxAgeRefSOURCESHORT: TStringField
+      FieldName = 'SOURCESHORT'
+      Required = True
+      Size = 100
+    end
+  end
+  object dsMaxAgeRef: TDataSource
+    DataSet = cdsMaxAgeRef
+    Left = 1042
+    Top = 683
+  end
+  object qGDUSmpdataAges: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select SMPDATAZR.SampleNo, SMPDATAZR.Frac,'
+      '  SMPDATAZR.GDUID,'
+      
+        '  SMPDATAZR.Age_UPb_Ma AS AGE,  SMPDATAZR.Age_UPb_Err_Ma AS AGEE' +
+        'RROR'
+      'from SMPDATAZR'
+      'where SMPDATAZR.GDUID = :GDUID'
+      'and SMPDATAZR.AGE_UPB_MA > 0.0'
+      'and SMPDATAZR.AGE_UPB_ERR_MA < 5000.0'
+      'order by SMPDATAZR.SampleNo, SMPDATAZR.Frac')
+    SQLConnection = sqlcDateView
+    Left = 788
+    Top = 683
+  end
+  object dspGDUSmpdataAges: TDataSetProvider
+    DataSet = qGDUSmpdataAges
+    Left = 818
+    Top = 683
+  end
+  object cdsGDUSmpdataAges: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDUSmpdataAges'
+    Left = 846
+    Top = 683
+    object cdsGDUSmpdataAgesSAMPLENO: TStringField
+      FieldName = 'SAMPLENO'
+      Required = True
+      Size = 50
+    end
+    object cdsGDUSmpdataAgesFRAC: TStringField
+      FieldName = 'FRAC'
+      Required = True
+      Size = 50
+    end
+    object cdsGDUSmpdataAgesGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDUSmpdataAgesAGE: TFloatField
+      FieldName = 'AGE'
+    end
+    object cdsGDUSmpdataAgesAGEERROR: TFloatField
+      FieldName = 'AGEERROR'
+    end
+  end
+  object dsGDUSmpdataAges: TDataSource
+    DataSet = cdsGDUSmpdataAges
+    Left = 874
+    Top = 683
   end
 end

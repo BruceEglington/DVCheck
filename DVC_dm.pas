@@ -5,10 +5,11 @@ interface
 uses
   Windows,
   SysUtils, Classes,
-  DBXCommon,
+  DBXCommon, Dialogs,
   DB, SqlExpr, FMTBcd, DBClient, Provider,
   midaslib,
-  WideStrings, DbxDevartInterBase;
+  DVC_constants,  mathproc,
+  WideStrings, DbxDevartInterBase, Data.DBXFirebird;
 
 type
   TdmDVC = class(TDataModule)
@@ -543,6 +544,68 @@ type
     cdsDepIsotopeCountCOUNTSO4: TIntegerField;
     cdsDepIsotopeCountCOUNTO: TIntegerField;
     cdsDepIsotopeCountCOUNTHF: TIntegerField;
+    qGDUs: TSQLQuery;
+    dspGDUs: TDataSetProvider;
+    cdsGDUs: TClientDataSet;
+    cdsGDUsGDUID: TFMTBCDField;
+    cdsGDUsGDUNAME: TStringField;
+    cdsGDUsRCNMDLID: TStringField;
+    cdsGDUsMAXIGNEOUSAGE: TFloatField;
+    cdsGDUsMAXMETAMORPHICAGE: TFloatField;
+    cdsGDUsMAXCRUSTALRESAGE: TFloatField;
+    cdsGDUsMAXDETRITALAGE: TFloatField;
+    cdsGDUsLIMOLDP: TFloatField;
+    dsGDUs: TDataSource;
+    qIsoGDU: TSQLQuery;
+    dspIsoGDU: TDataSetProvider;
+    cdsIsoGDU: TClientDataSet;
+    cdsIsoGDURECORDID: TIntegerField;
+    cdsIsoGDURCNMDLID: TStringField;
+    cdsIsoGDUGDUID: TFMTBCDField;
+    dsIsoGDU: TDataSource;
+    qGDUPDF: TSQLQuery;
+    dspGDUPDF: TDataSetProvider;
+    cdsGDUPDF: TClientDataSet;
+    cdsGDUPDFRCNMDLID: TStringField;
+    cdsGDUPDFGDUID: TFMTBCDField;
+    cdsGDUPDFCURVEORDER: TSmallintField;
+    cdsGDUPDFPDFORDER: TIntegerField;
+    cdsGDUPDFAGE: TFloatField;
+    cdsGDUPDFPDFVALUE: TFloatField;
+    cdsGDUPDFCURVEINTERP: TStringField;
+    dsGDUPDF: TDataSource;
+    qGDURecordAges: TSQLQuery;
+    dspGDURecordAges: TDataSetProvider;
+    cdsGDURecordAges: TClientDataSet;
+    cdsGDURecordAgesRECORDID: TIntegerField;
+    cdsGDURecordAgesRCNMDLID: TStringField;
+    cdsGDURecordAgesGDUID: TFMTBCDField;
+    cdsGDURecordAgesRAGE: TFloatField;
+    cdsGDURecordAgesRAGEPERROR: TFloatField;
+    cdsGDURecordAgesRAGEMERROR: TFloatField;
+    cdsGDURecordAgesINTERPABR: TStringField;
+    dsGDURecordAges: TDataSource;
+    qDelete: TSQLQuery;
+    qUpdate: TSQLQuery;
+    qMaxAgeRef: TSQLQuery;
+    dspMaxAgeRef: TDataSetProvider;
+    cdsMaxAgeRef: TClientDataSet;
+    dsMaxAgeRef: TDataSource;
+    cdsMaxAgeRefGDUID: TFMTBCDField;
+    cdsMaxAgeRefMAXIGNEOUSAGE: TFloatField;
+    cdsMaxAgeRefRECORDID: TIntegerField;
+    cdsMaxAgeRefRAGE: TFloatField;
+    cdsMaxAgeRefSOURCESHORT: TStringField;
+    cdsGDUsMAXAGEREFS: TStringField;
+    qGDUSmpdataAges: TSQLQuery;
+    dspGDUSmpdataAges: TDataSetProvider;
+    cdsGDUSmpdataAges: TClientDataSet;
+    dsGDUSmpdataAges: TDataSource;
+    cdsGDUSmpdataAgesSAMPLENO: TStringField;
+    cdsGDUSmpdataAgesFRAC: TStringField;
+    cdsGDUSmpdataAgesGDUID: TFMTBCDField;
+    cdsGDUSmpdataAgesAGE: TFloatField;
+    cdsGDUSmpdataAgesAGEERROR: TFloatField;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
@@ -554,6 +617,16 @@ type
     procedure InsertDepositIsotopeCount(tDepositID,tCountPb,tCountSr,tCountNd,tCountHf,tCountOs,tCountS,tCountSO4,tCountO : integer);
     procedure InsertIsoForRecord(tRecordID : integer;tWhoForID : string);
     procedure RecalcTDM(RecordID : integer);
+    procedure CalculateGDUPDFS(tRcnMdlID : string;
+                               iGDUID : integer; iCurveOrder : integer;
+                               CurveInterpID : string;
+                           var CountRecords : integer;
+                           var MaxAge : double;
+                           var WasSuccessful : boolean);
+    procedure FindMaxAgeReference(iGDUID : integer; tRcnMdlID : string;
+                                  InterpID : string;
+                                  ExistReference : string;
+                              var WasSuccessful : boolean);
   end;
 
 var
@@ -563,7 +636,6 @@ implementation
 
 {$R *.dfm}
 
-uses DVC_constants;
 
 procedure TdmDVC.DataModuleCreate(Sender: TObject);
 begin
@@ -743,5 +815,218 @@ begin
   end;
 end;
 
+procedure TdmDVC.CalculateGDUPDFS(tRcnMdlID : string;
+                                  iGDUID : integer; iCurveOrder : integer;
+                                  CurveInterpID : string;
+                              var CountRecords : integer;
+                              var MaxAge : double;
+                              var WasSuccessful : boolean);
+var
+  TD: TDBXTransaction;
+  tmpStr : string;
+  tCurveInterp : string;
+  i, k, l, j : integer;
+  X1, X2, Y2 : double;
+  Spectrum2d : array[0..MaxSteps,0..1] of double;
+  tx, tx1, txp, txm : double;
+  MinimumUncertainty : double;
+  tempGauss : double;
+  tempmax : double;
+begin
+  tmpStr := '0.0';
+  WasSuccessful := true;
+  //open query with list of all GDUs
+  //delete existing records for specified reconstruction model and GDU
+  // if appropriate menu option is chosen
+  dmDVC.qDelete.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+  dmDVC.qDelete.ParamByName('GDUID').AsInteger := iGDUID;
+  if (iCurveOrder > 0) then
+  begin
+    dmDVC.qDelete.ParamByName('CURVEORDER').AsInteger := iCurveOrder;
+  end;
+  TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
+  try
+    dmDVC.qDelete.ExecSQL(false);
+    dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
+  except
+    dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
+    WasSuccessful := false;
+  end;
+  //calculate ages for probability distribution and set all probabilities
+  //to zero
+  for k := 0 to Steps do
+  begin
+    X1 := SpectrumStartAge + 1.0*k*((SpectrumEndAge-SpectrumStartAge)/Steps);
+    Spectrum2d[k,0] := X1;
+    Spectrum2d[k,1] := 0.0;
+  end;
+  //set query to select records for specified GDU and reconstruction model
+  //from DateView summary records
+  //ShowMessage('3'+tRcnMdlID);
+  //ShowMessage(dmDVC.qGDURecordAges.SQL.Text);
+  dmDVC.cdsGDURECORDAGES.Close;
+  dmDVC.qGDURECORDAGES.Close;
+  dmDVC.qGDURecordAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+  dmDVC.qGDURecordAges.ParamByName('GDUID').AsInteger := iGDUID;
+  dmDVC.cdsGDURecordAges.Open;
+  //ShowMessage('4'+tRcnMdlID);
+  //set query to select records for specified GDU and reconstruction model
+  //from DateView individual sample data records
+  dmDVC.cdsGDURecordAges.First;
+  j := 0;
+  CountRecords := 0;
+  tempmax := 0.0;
+  MaxAge := 0.0;
+  if (iCurveOrder > 0) then
+  begin
+    repeat
+      j := j + 1;
+      tx := dmDVC.cdsGDURecordAgesRAGE.AsFloat;
+      if ((tx > 0.0) and (tx < 5000.0) and (tx > MaxAge)) then MaxAge := tx;
+      txp := dmDVC.cdsGDURecordAgesRAGEPERROR.AsFloat;
+      txm := dmDVC.cdsGDURecordAgesRAGEMERROR.AsFloat;
+      tx1 := (txp+txm)/2.0;   //need to make this equally distributed about the age
+      tx1 := tx1/1.96;   //convert to 1 sigma from original 95% confidence
+      if (tx1 < MinimumUncertainty) then tx1 := MinimumUncertainty;
+      for k := 0 to Steps do
+      begin
+        X1 := Spectrum2d[k,0];
+        tempGauss := Gauss(X1,tx,tx1);
+        Spectrum2d[k,1] := Spectrum2d[k,1] + tempGauss;
+      end;
+      dmDVC.cdsGDURecordAges.Next;
+    until dmDVC.cdsGDURecordAges.EOF;
+    if ((iCurveOrder = 4) or (iCurveOrder = 5)) then
+    begin
+      dmDVC.cdsGDUSMPDATAAGES.Close;
+      dmDVC.qGDUSMPDATAAGES.Close;
+      //dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDUSmpdataAges.ParamByName('GDUID').AsInteger := iGDUID;
+      dmDVC.cdsGDUSmpdataAges.Open;
+      dmDVC.cdsGDUSmpdataAges.First;
+      repeat
+        j := j + 1;
+        tx := dmDVC.cdsGDUSmpdataAgesAGE.AsFloat;
+        if ((tx > 0.0) and (tx < 5000.0) and (tx > MaxAge)) then MaxAge := tx;
+        txp := dmDVC.cdsGDUSmpdataAgesAGEERROR.AsFloat;
+        txm := dmDVC.cdsGDUSmpdataAgesAGEERROR.AsFloat;
+        tx1 := (txp+txm)/2.0;   //need to make this equally distributed about the age
+        tx1 := tx1;   //convert to 1 sigma from original 95% confidence
+        if (tx1 < MinimumUncertainty) then tx1 := MinimumUncertainty;
+        for k := 0 to Steps do
+        begin
+          X1 := Spectrum2d[k,0];
+          tempGauss := Gauss(X1,tx,tx1);
+          Spectrum2d[k,1] := Spectrum2d[k,1] + tempGauss;
+        end;
+        dmDVC.cdsGDUSmpdataAges.Next;
+      until dmDVC.cdsGDUSmpdataAges.EOF;
+    end;
+    CountRecords := j;
+    tempmax := 0.0;
+    for k := 0 to Steps do
+    begin
+      if (tempmax < Spectrum2d[k,1]) then tempmax := Spectrum2d[k,1];
+    end;
+    if (tempmax <= 0.0) then tempmax := 1.0e-9;
+    tempmax := 100.0/tempmax;
+    //ShowMessage('6'+tRcnMdlID);
+    //now insert new records
+    try
+      for k := 0 to Steps do
+      begin
+        if ((Spectrum2d[k,1]*tempmax) > PDFcutoff) then
+        begin
+          dmDVC.qNew.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+          dmDVC.qNew.ParamByName('GDUID').AsInteger := iGDUID;
+          dmDVC.qNew.ParamByName('CURVEORDER').AsInteger := iCurveOrder;
+          dmDVC.qNew.ParamByName('PDFORDER').AsInteger := k;
+          dmDVC.qNew.ParamByName('AGE').AsFloat := Spectrum2d[k,0];
+          dmDVC.qNew.ParamByName('PDFVALUE').AsFloat := Spectrum2d[k,1]*tempmax;
+          dmDVC.qNew.ParamByName('CURVEINTERP').AsString := CurveInterpID;
+          TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
+          try
+            dmDVC.qNew.ExecSQL(false);
+            dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
+          except
+            dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
+            WasSuccessful := false;
+          end;
+        end;
+      end;
+    except
+      WasSuccessful := false;
+    end;
+  end;
+  // update count and maxage values for the GDU just processed
+  //ShowMessage('7'+tRcnMdlID);
+  try
+    dmDVC.qUpdate.Close;
+    dmDVC.qUpdate.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+    dmDVC.qUpdate.ParamByName('GDUID').AsInteger := iGDUID;
+    dmDVC.qUpdate.ParamByName('COUNTRECORDS').AsInteger := CountRecords;
+    dmDVC.qUpdate.ParamByName('MAXAGE').AsFloat := MaxAge;
+    dmDVC.qUpdate.ParamByName('DATEUPDATED').AsDateTime := Now;
+    TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
+    try
+      dmDVC.qUpdate.ExecSQL(false);
+      dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
+    except
+      dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
+      WasSuccessful := false;
+    end;
+  except
+    WasSuccessful := false;
+  end;
+end;
+
+
+procedure TdmDVC.FindMaxAgeReference(iGDUID : integer; tRcnMdlID : string;
+                                  InterpID : string;
+                                  ExistReference : string;
+                              var WasSuccessful : boolean);
+var
+  TD: TDBXTransaction;
+  tmpStr : string;
+  tSourceTypeID : string;
+  tRef1 : string;
+begin
+  tSourceTypeID := ValueForSourceTypeA;
+  tmpStr := '0.0';
+  WasSuccessful := true;
+  //find refere nce for maxcrystallisation
+  dmDVC.cdsMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.ParamByName('SourceTypeID').AsString := tSourceTypeID;
+  dmDVC.qMAXAGEREF.ParamByName('GDUID').AsInteger := iGDUID;
+  dmDVC.qMAXAGEREF.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+  //ShowMessage(dmDVC.qMAXAGEREF.SQL.Text);
+  dmDVC.cdsMAXAGEREF.Open;
+  tRef1 := dmDVC.cdsMaxAgeRefSOURCESHORT.AsString;
+  //ShowMessage('Add '+IntToStr(iGDUID)+' '+tRef1);
+  if (InterpID = ValueForCrsRs) then
+  begin
+    //ShowMessage('Existing '+IntToStr(iGDUID)+' '+ExistReference);
+    tRef1 := ExistReference + '; ' + tRef1;
+    //ShowMessage(IntToStr(iGDUID)+' '+tRef1+'****');
+  end;
+  try
+    dmDVC.qUpdate.Close;
+    dmDVC.qUpdate.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+    dmDVC.qUpdate.ParamByName('GDUID').AsInteger := iGDUID;
+    dmDVC.qUpdate.ParamByName('tRef').AsString := tRef1;
+    //ShowMessage(IntToStr(iGDUID)+' '+tRef1);
+    TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
+    try
+      dmDVC.qUpdate.ExecSQL(false);
+      dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
+    except
+      dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
+      WasSuccessful := false;
+    end;
+  except
+    WasSuccessful := false;
+  end;
+end;
 
 end.

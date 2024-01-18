@@ -381,6 +381,41 @@ object DVCmain: TDVCmain
         OnClick = StratDBparentstoDateView1Click
       end
     end
+    object GDU1: TMenuItem
+      Caption = 'GDU'
+      object CreateEmptyRecords1: TMenuItem
+        Caption = 'Create empty records'
+        OnClick = CreateEmptyRecords1Click
+      end
+      object CrystallisationAges1: TMenuItem
+        Caption = 'Crystallisation ages'
+        OnClick = CrystallisationAges1Click
+      end
+      object Metamorphismages1: TMenuItem
+        Caption = 'Metamorphism ages'
+        OnClick = Metamorphismages1Click
+      end
+      object CrustalResidenceAges1: TMenuItem
+        Caption = 'Crustal residence ages'
+        OnClick = CrustalResidenceAges1Click
+      end
+      object DetritalAges1: TMenuItem
+        Caption = 'Detrital ages'
+        OnClick = DetritalAges1Click
+      end
+      object DetritalResidenceAges1: TMenuItem
+        Caption = 'Detrital residence ages'
+        OnClick = DetritalResidenceAges1Click
+      end
+      object AllAgeInterpretations1: TMenuItem
+        Caption = 'All age interpretations'
+        OnClick = AllAgeInterpretations1Click
+      end
+      object MaxAgeReferences1: TMenuItem
+        Caption = 'Max age references'
+        OnClick = MaxAgeReferences1Click
+      end
+    end
     object About1: TMenuItem
       Caption = '&Help'
       object About2: TMenuItem

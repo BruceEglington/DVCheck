@@ -9,7 +9,8 @@ uses
   DVC_About in 'DVC_About.pas' {AboutBox},
   Vcl.Themes,
   Vcl.Styles,
-  DVC_constants in 'DVC_constants.pas';
+  DVC_constants in 'DVC_constants.pas',
+  Mathproc in '..\Eglington Delphi common code items\Mathproc.pas';
 
 {$R *.res}
 

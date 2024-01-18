@@ -2,9 +2,17 @@ unit DVC_constants;
 
 interface
 
-implementation
-
 const
+  MaxSamp    = 5000;
+  MaxSeries  = 5;
+  MaxGuestRecords = 500;
+  AgeTolerance = 20000.0;
+  MaxSteps        = 2500;
+  SpectrumStartAge = 0.0;
+  SpectrumEndAge = 4500.0;
+  DefaultMissingValue = -999.99;
+  PDFcutoff = 0.1;
+
   DecayConst147Sm : double = 6.54e-12;
   DecayConst176Hf : double = 1.867e-11;
 
@@ -26,6 +34,19 @@ const
   ValueForApproachIDT2DM = 'DM2';
   ValueForApproachIDTDM  = 'DM';
   ValueForIgneous : string = 'I';
+  ValueForCrys : string = 'Crys';
+  ValueForMetpR : string = 'MetpR';
+  ValueForCrsRs : string = 'CrsRs';
+  ValueForDetrital : string = 'Detri';
+  ValueForSourceTypeA : string = 'A';
+  ValueForSourceTypeC : string = 'C';
+  ValueForEmptyRecords : string = 'Empty';
+
+
+var
+  Steps : integer;
+
+implementation
 
 
 end.

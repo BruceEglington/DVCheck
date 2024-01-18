@@ -71,6 +71,15 @@ type
     Updatedepositlocationsfromsamplelocations1: TMenuItem;
     Updatesamplelocationsfromdepositlocations1: TMenuItem;
     Duplicateagerecords1: TMenuItem;
+    GDU1: TMenuItem;
+    CrystallisationAges1: TMenuItem;
+    Metamorphismages1: TMenuItem;
+    CrustalResidenceAges1: TMenuItem;
+    AllAgeInterpretations1: TMenuItem;
+    MaxAgeReferences1: TMenuItem;
+    CreateEmptyRecords1: TMenuItem;
+    DetritalAges1: TMenuItem;
+    DetritalResidenceAges1: TMenuItem;
     procedure Referencerecordsexist1Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure Validityrecordsexist1Click(Sender: TObject);
@@ -104,11 +113,21 @@ type
     procedure UpdateUndefinedLithologies1Click(Sender: TObject);
     procedure Updatedepositlocationsfromsamplelocations1Click(Sender: TObject);
     procedure Duplicateagerecords1Click(Sender: TObject);
+    procedure CrystallisationAges1Click(Sender: TObject);
+    procedure Metamorphismages1Click(Sender: TObject);
+    procedure CrustalResidenceAges1Click(Sender: TObject);
+    procedure AllAgeInterpretations1Click(Sender: TObject);
+    procedure MaxAgeReferences1Click(Sender: TObject);
+    procedure CreateEmptyRecords1Click(Sender: TObject);
+    procedure DetritalAges1Click(Sender: TObject);
+    procedure DetritalResidenceAges1Click(Sender: TObject);
   private
     { Private declarations }
     procedure GetIniFile;
   public
     { Public declarations }
+    procedure AgeProbabilities(iCurveOrder : integer; tCurveInterp: string);
+    procedure AgeReferences;
   end;
 
 var
@@ -118,7 +137,7 @@ implementation
 
 uses
   System.IOUtils,
-  DVC_dm, DVC_reclim, DVC_About, DVC_dmStrat, DVC_constants;
+  DVC_dm, DVC_reclim, DVC_About, DVC_dmStrat, DVC_constants, Mathproc;
 
 {$R *.dfm}
 
@@ -956,6 +975,8 @@ var
   iChecked, iCorrected, iFailed : integer;
   RecordLithology, SampleLithology : string;
   TD: TDBXTransaction;
+  tSampleNo : string;
+  iRecordID : integer;
 begin
   StatusBar1.Panels[3].Text := ' ';
   if (Sender = UpdateUndefinedSampleLithologies1) then
@@ -985,7 +1006,27 @@ begin
     dbn2.DataSource := dmDVC.dsSmpLithol;
     dbg2.DataSource := dmDVC.dsSmpLithol;
   end;
+
   dmDVC.qRecordIDsLithol.Close;
+  dmDVC.qRecordIDsLithol.SQL.Clear;
+  dmDVC.qRecordIDsLithol.SQL.Add('select ISORGR30.RECORDID, ISORGR30.LITHOLOGY,');
+  dmDVC.qRecordIDsLithol.SQL.Add('  SMPLOC.sampleno,  SMPLOC.LITHOLOGY as smplith');
+  dmDVC.qRecordIDsLithol.SQL.Add('from ISORGR30,smploc, SMPREG');
+  dmDVC.qRecordIDsLithol.SQL.Add('where ISORGR30.RECORDID >= :StartRecord');
+  dmDVC.qRecordIDsLithol.SQL.Add('and ISORGR30.RECORDID <= :EndRecord');
+  if (Sender = UpdateUndefinedSampleLithologies1) then
+  begin
+    dmDVC.qRecordIDsLithol.SQL.Add('and ISORGR30.LITHOLOGY <> '+''''+'Not defined'+'''');
+    dmDVC.qRecordIDsLithol.SQL.Add('and SMPLOC.LITHOLOGY = '+''''+'Not defined'+'''');
+  end;
+  if (Sender = UpdateUndefinedRecordLithologies1) then
+  begin
+    dmDVC.qRecordIDsLithol.SQL.Add('and ISORGR30.LITHOLOGY = '+''''+'Not defined'+'''');
+    dmDVC.qRecordIDsLithol.SQL.Add('and SMPLOC.LITHOLOGY <> '+''''+'Not defined'+'''');
+  end;
+  dmDVC.qRecordIDsLithol.SQL.Add('and ISORGR30.RECORDID = SMPREG.RECORDID');
+  dmDVC.qRecordIDsLithol.SQL.Add('and SMPREG.SAMPLENO = SMPLOC.SAMPLENO');
+  dmDVC.qRecordIDsLithol.SQL.Add('ORDER BY ISORGR30.RECORDID');
   dmDVC.qRecordIDsLithol.ParamByName('StartRecord').AsInteger := dmDVC.StartRecord;
   dmDVC.qRecordIDsLithol.ParamByName('EndRecord').AsInteger := dmDVC.EndRecord;
   dmDVC.cdsRecordIDsLithol.Close;
@@ -1008,26 +1049,25 @@ begin
         end;
         if (Sender = UpdateUndefinedRecordLithologies1) then
         begin
+          ShowMessage(dmDVC.cdsRecordIDsLitholSAMPLENO.AsString);
+          ShowMessage(dmDVC.cdsSmpLitholLITHOLOGY.AsString);
           dmDVC.qNew.SQL.Clear;
-          dmDVC.qNew.SQL.Add('UPDATE SMPLOC');
-          dmDVC.qNew.SQL.Add('SET SMPLOC.LITHOLOGY = :ShouldBe');
-          dmDVC.qNew.SQL.Add('WHERE SMPLOC.LITHOLOGY = '+''''+'Not defined'+'''');
-          dmDVC.qNew.SQL.Add('AND SMPLOC.SAMPLENO = :ThisSample');
-          dmDVC.qNew.ParamByName('ShouldBe').AsString := dmDVC.cdsRecordIDsLitholLITHOLOGY.AsString;
-          dmDVC.qNew.ParamByName('ThisSample').AsString := dmDVC.cdsRecordIDsLitholSAMPLENO.AsString;
+          dmDVC.qNew.SQL.Add('UPDATE ISORGR30');
+          dmDVC.qNew.SQL.Add('SET ISORGR30.LITHOLOGY = :ShouldBe');
+          dmDVC.qNew.SQL.Add('WHERE ISORGR30.LITHOLOGY = '+''''+'Not defined'+'''');
+          dmDVC.qNew.SQL.Add('AND ISORGR30.RECORDID = :ThisRecordID');
+          dmDVC.qNew.ParamByName('ShouldBe').AsString := dmDVC.cdsSmpLitholLITHOLOGY.AsString;
+          dmDVC.qNew.ParamByName('ThisRecordID').AsInteger := dmDVC.cdsRecordIDsLitholRECORDID.AsInteger;
         end;
-        //if not dmStrat.sqlcStratDB.InTransaction then
-        //begin
-          TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
-          try
-            dmDVC.qNew.ExecSQL(false);
-            dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
-            iCorrected := iCorrected + 1;
-          except
-            dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
-            iFailed := iFailed + 1;
-          end;
-        //end;
+        TD := dmDVC.sqlcDateView.BeginTransaction(TDBXIsolations.ReadCommitted);
+        try
+          dmDVC.qNew.ExecSQL(false);
+          dmDVC.sqlcDateView.CommitFreeAndNil(TD); //on success, commit the changes
+          iCorrected := iCorrected + 1;
+        except
+          dmDVC.sqlcDateView.RollbackFreeAndNil(TD); //on failure, undo the changes
+          iFailed := iFailed + 1;
+        end;
       except
       end;
       {
@@ -1068,6 +1108,7 @@ end;
 
 procedure TDVCmain.FormShow(Sender: TObject);
 begin
+  Steps := 450;
   GetIniFile;
   with dmDVC do
   begin
@@ -1125,7 +1166,7 @@ begin
   UserControlPath := 'localhost:c:/Data/Firebird/UserControl.fdb';
   StratDBPath := 'localhost:c:/Data/Firebird/StratDB.fdb';
   DateViewPath := 'localhost:c:/Data/Firebird/DateView.fdb';
-  DriverName := 'DevartInterBase';
+  DriverName := 'DevartFirebird';
   DBUserName := 'SYSDBA';
   DBPassword := 'masterkey';
   DBSQLDialectStr := '3';
@@ -1137,10 +1178,10 @@ begin
   IniFilename := IniFilePath + 'DVCheck.ini';
   AppIni := TIniFile.Create(IniFilename);
   try
-    UserControlPath := AppIni.ReadString('Paths','UserControl path','S:/Data/Firebird/UserControl2015v25.fdb');
-    StratDBPath := AppIni.ReadString('Paths','StratDB path','S:/Data/Firebird/StratDB2015v25.fdb');
-    DateViewPath := AppIni.ReadString('Paths','DateView path','S:/Data/Firebird/DateView2015v25.fdb');
-    DriverName := AppIni.ReadString('Parameters','DriverName','DevartInterBase');
+    UserControlPath := AppIni.ReadString('Paths','UserControl path','S:/Data/Firebird/UserControl2021v30.fdb');
+    StratDBPath := AppIni.ReadString('Paths','StratDB path','S:/Data/Firebird/StratDB2021v30.fdb');
+    DateViewPath := AppIni.ReadString('Paths','DateView path','S:/Data/Firebird/DateView2021v30.fdb');
+    DriverName := AppIni.ReadString('Parameters','DriverName','DevartFirebird');
     DBUserName := AppIni.ReadString('Parameters','User_Name','SYSDBA');
     DBPassword := AppIni.ReadString('Parameters','Password','masterkey');
     DBSQLDialectStr := AppIni.ReadString('Parameters','SQLDialect','3');
@@ -1893,6 +1934,236 @@ begin
   end;
 end;
 
+procedure TDVCmain.CreateEmptyRecords1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 0;
+  tCurveInterp := ValueForEmptyRecords;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
+procedure TDVCmain.CrustalResidenceAges1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 3;
+  tCurveInterp := ValueForCrsRs;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
+procedure TDVCmain.CrystallisationAges1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 1;
+  tCurveInterp := ValueForCrys;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
+procedure TDVCmain.AgeProbabilities(iCurveOrder : integer; tCurveInterp: string);
+var
+  TD: TDBXTransaction;
+  WasSuccessful : boolean;
+  iChecked, iCorrected, iFailed : integer;
+  iGDUID : integer;
+  iCountRecords : integer;
+  tMaxAge : double;
+  tRcnMdlID : string;
+begin
+  StatusBar1.Panels[0].Text := ' ';
+  StatusBar1.Panels[1].Text := ' ';
+  StatusBar1.Panels[2].Text := ' ';
+  StatusBar1.Panels[3].Text := ' ';
+  StatusBar1.Refresh;
+  dbnRecordIDs.DataSource := dmDVC.dsGDUs;
+  dbgRecordIDs.DataSource := dmDVC.dsGDUs;
+  iChecked := 0;
+  iCorrected := 0;
+  iFailed := 0;
+  StatusBar1.Panels[4].Text := 'Calculating age spectra per GDU';
+  tRcnMdlID := 'PalaeoPlat';
+  //ShowMessage('1');
+  //query to get all ages for a specified GDU and interpretation
+  //CureOder in [0,1,2,3] i.e. not for detrital individual analyses
+  if ((iCurveOrder >= 0) and (iCurveOrder < 6)) then
+  begin
+    dmDVC.cdsGDURECORDAGES.Close;
+    dmDVC.qGDURECORDAGES.Close;
+    dmDVC.qGDURECORDAGES.SQL.Clear;
+    dmDVC.qGDURECORDAGES.SQL.Add('select ISOGDU.RecordID,IsoGDU.RCNMDLID,IsoGDU.GDUID,');
+    dmDVC.qGDURECORDAGES.SQL.Add('  IsoRGR30.RAGE,ISORGR30.RAGEPERROR,ISORGR30.RAGEMERROR,');
+    dmDVC.qGDURECORDAGES.SQL.Add('  ISORGR30.INTERPABR');
+    dmDVC.qGDURECORDAGES.SQL.Add('from ISOGDU,ISORGR30');
+    dmDVC.qGDURECORDAGES.SQL.Add('where ISORGR30.RECORDID = ISOGDU.RECORDID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISOGDU.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISOGDU.GDUID = :GDUID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISORGR30.RAGE > 0.000');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISORGR30.RAGE < 5000.000');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISORGR30.AGEUNITS = '+''''+'Ma'+'''');
+    if (tCurveInterp = ValueForCrys) then
+    begin
+      dmDVC.qGDURECORDAGES.SQL.Add('and (ISORGR30.INTERPABR='+''''+'CrysI'+''''+' or ISORGR30.InterpABR='+''''+'CrysV'+''''+')');
+    end;
+    if (tCurveInterp = ValueForMetpR) then
+    begin
+      dmDVC.qGDURECORDAGES.SQL.Add('and (ISORGR30.INTERPABR='+''''+'MetpR'+''''+')');
+    end;
+    if (tCurveInterp = ValueForCrsRs) then
+    begin
+      dmDVC.qGDURECORDAGES.SQL.Add('and (ISORGR30.INTERPABR='+''''+'CrsRs'+''''+' and ISORGR30.ApproachAbr<>'+''''+'CHUR'+''''+')');
+    end;
+    if (tCurveInterp = ValueForDetrital) then
+    begin
+      dmDVC.qGDURECORDAGES.SQL.Add('and (ISORGR30.INTERPABR='+''''+'Detri'+''''+' or ISORGR30.InterpAbr='+''''+'DetGI'+''''+')');
+      if (iCurveOrder = 5) then
+      begin
+      dmDVC.qGDURECORDAGES.SQL.Add('and ISORGR30.APPROACHABR='+''''+'DM2'+'''');
+      end;
+    end;
+    dmDVC.qGDURECORDAGES.SQL.Add('order by ISORGR30.RECORDID');
+  end;
+  //CureOder = 4 i.e. for detrital individual analyses
+  //CureOder = 5 i.e. for crustal residence ages derived from detrital individual analyses
+  if ((iCurveOrder = 4) or (iCurveOrder = 5)) then
+  begin
+    dmDVC.cdsGDUSMPDATAAGES.Close;
+    dmDVC.qGDUSMPDATAAGES.Close;
+    dmDVC.qGDUSMPDATAAGES.SQL.Clear;
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('select SMPDATAZR.SampleNo, SMPDATAZR.Frac,');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.GDUID,');
+    if (iCurveOrder = 4) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.Age_UPb_Ma as age, SMPDATAZR.Age_UPb_Err_Ma as ageerror');
+    end;
+    if (iCurveOrder = 5) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.T2DM_Ma as age, SMPDATAZR.T2DM_Err_Ma as ageerror');
+    end;
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR.GDUID = :GDUID');
+    if (iCurveOrder = 4) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.Age_UPb_Ma > 0.000');
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.Age_UPb_Ma < 5000.000');
+    end;
+    if (iCurveOrder = 5) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma > 0.000');
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma < 5000.000');
+    end;
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR.SampleNo, SMPDATAZR.Frac');
+  end;
+  //query to insert probability values into database
+  dmDVC.qNew.SQL.Clear;
+  dmDVC.qNew.SQL.Add('INSERT INTO GDUSPDF');
+  dmDVC.qNew.SQL.Add('(RCNMDLID, GDUID, CURVEORDER, PDFORDER, AGE, PDFVALUE, CURVEINTERP )');
+  dmDVC.qNew.SQL.Add('VALUES (:RCNMDLID, :GDUID, :CURVEORDER, :PDFORDER, :AGE, :PDFVALUE, :CURVEINTERP )');
+  //dmUser.SetDeveloperData(dmDVC.qNew.SQL.Text);
+  //query to delete existing probability values from database for specified reconstruction model and GDU
+  dmDVC.qDelete.SQL.Clear;
+  dmDVC.qDelete.SQL.Add('DELETE FROM GDUSPDF');
+  dmDVC.qDelete.SQL.Add('WHERE GDUSPDF.RCNMDLID = :RCNMDLID');
+  dmDVC.qDelete.SQL.Add('AND GDUSPDF.GDUID = :GDUID');
+  if (iCurveOrder > 0) then
+  begin
+    dmDVC.qDelete.SQL.Add('AND GDUSPDF.CurveOrder = :CurveOrder');
+  end;
+  //query to update counts and max ages for each GDU processed
+  dmDVC.qUpdate.SQL.Clear;
+  dmDVC.qUpdate.SQL.Add('UPDATE GDUS');
+  if (tCurveInterp = ValueForEmptyRecords) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTIGNEOUS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTCRSRS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTMETAMORPHIC = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGNEOUSAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXMETAMORPHICAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCRUSTALRESAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (tCurveInterp = ValueForCrys) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTIGNEOUS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGNEOUSAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (tCurveInterp = ValueForMetpR) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTMETAMORPHIC = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXMETAMORPHICAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (tCurveInterp = ValueForCrsRs) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTCRSRS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCRUSTALRESAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if ((tCurveInterp = ValueForDetrital) and (iCurveOrder = 4)) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTDETRITAL = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if ((tCurveInterp = ValueForDetrital) and (iCurveOrder = 5)) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTDETRITALCRSRS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALCRSRS = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  dmDVC.qUpdate.SQL.Add('where GDUS.GDUID = :GDUID');
+  dmDVC.qUpdate.SQL.Add('and GDUS.RCNMDLID = :RCNMDLID');
+
+  dmDVC.cdsGDUs.Close;
+  dmDVC.qGDUs.Close;
+  dmDVC.qGDUs.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+  dmDVC.cdsGDUs.Open;
+  //tCurveInterp := 'Crys';
+  iCountRecords := 0;
+  tMaxAge := 0.0;
+  //ShowMessage('2'+tRcnMdlID);
+  if (tCurveInterp = ValueForEmptyRecords) then iCurveOrder := 0;
+  repeat
+    iGDUID := dmDVC.cdsGDUsGDUID.AsInteger;
+    StatusBar1.Panels[3].Text := IntToStr(iGDUID);
+    StatusBar1.Refresh;
+    Application.ProcessMessages;
+    WasSuccessful := true;
+    dmDVC.CalculateGDUPDFS(tRcnMdlID,iGDUID,iCurveOrder,tCurveInterp,iCountRecords,tMaxAge,WasSuccessful);
+    dmDVC.cdsGDUs.Next;
+  until dmDVC.cdsGDUs.Eof;
+  StatusBar1.Panels[3].Text := '';
+  StatusBar1.Panels[4].Text := 'Completed calculating age spectra';
+  StatusBar1.Refresh;
+end;
+
+procedure TDVCmain.AllAgeInterpretations1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 1;
+  tCurveInterp := ValueForCrys;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+  iCurveOrder := 2;
+  tCurveInterp := ValueForMetpR;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+  iCurveOrder := 3;
+  tCurveInterp := ValueForCrsRs;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+  iCurveOrder := 4;
+  tCurveInterp := ValueForDetrital;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+  iCurveOrder := 5;
+  tCurveInterp := ValueForDetrital;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
 procedure TDVCmain.Deleteunlinkedunits1Click(Sender: TObject);
 var
   iChecked, iCorrected, iFailed : integer;
@@ -1990,6 +2261,26 @@ begin
   //Delete user from each apprpriate dataabse user list
   //If CanDeleteUser = TRUE, then delete from UserControl database
   //Move on to next user in list
+end;
+
+procedure TDVCmain.DetritalAges1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 4;
+  tCurveInterp := ValueForDetrital;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
+procedure TDVCmain.DetritalResidenceAges1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 5;
+  tCurveInterp := ValueForDetrital;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
 end;
 
 procedure TDVCmain.Duplicateagerecords1Click(Sender: TObject);
@@ -2328,5 +2619,123 @@ begin
   end;
 end;
 
+procedure TDVCmain.Metamorphismages1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+begin
+  iCurveOrder := 2;
+  tCurveInterp := ValueForMetpR;
+  AgeProbabilities(iCurveOrder,tCurveInterp);
+end;
+
+procedure TDVCmain.MaxAgeReferences1Click(Sender: TObject);
+begin
+  AgeReferences;
+end;
+
+procedure TDVCmain.AgeReferences;
+var
+  TD: TDBXTransaction;
+  WasSuccessful : boolean;
+  iChecked, iCorrected, iFailed : integer;
+  iGDUID : integer;
+  tRcnMdlID : string;
+  iCountRecords : integer;
+  tMaxAge : double;
+  tRefAdd : string;
+  tMaxAgeReference : string;
+  tExistReference : string;
+  tInterp : string;
+begin
+  tRcnMdlID := 'PalaeoPlat';
+  StatusBar1.Panels[0].Text := ' ';
+  StatusBar1.Panels[1].Text := ' ';
+  StatusBar1.Panels[2].Text := ' ';
+  StatusBar1.Panels[3].Text := ' ';
+  StatusBar1.Refresh;
+  dbnRecordIDs.DataSource := dmDVC.dsGDUs;
+  dbgRecordIDs.DataSource := dmDVC.dsGDUs;
+  iChecked := 0;
+  iCorrected := 0;
+  iFailed := 0;
+  StatusBar1.Panels[4].Text := 'Identifying max. igneous age references per GDU';
+  //query to get reference details for different max age values per gdu
+  tInterp := 'Crys';
+  dmDVC.cdsMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.SQL.Clear;
+  dmDVC.qMAXAGEREF.SQL.Add('select gdus.gduid, gdus.maxigneousage, isogdu.recordid,');
+  dmDVC.qMAXAGEREF.SQL.Add('  isorgr30.rage,sourcelist.sourceshort');
+  dmDVC.qMAXAGEREF.SQL.Add('from gdus,isogdu,isorgr30, sourcea, sourcelist');
+  dmDVC.qMAXAGEREF.SQL.Add('where gdus.gduid=isogdu.gduid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.rcnmdlid=isogdu.rcnmdlid');
+  dmDVC.qMAXAGEREF.SQL.Add('and isogdu.recordid=isorgr30.recordid');
+  dmDVC.qMAXAGEREF.SQL.Add('and isorgr30.recordid=sourcea.recordid');
+  dmDVC.qMAXAGEREF.SQL.Add('and sourcea.refnum=sourcelist.sourcenum');
+  dmDVC.qMAXAGEREF.SQL.Add('and sourcea.sourcetypeid=:sourcetypeid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.gduid = :gduid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.rcnmdlID = :rcnmdlid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.maxigneousage=isorgr30.rage');
+  dmDVC.qMAXAGEREF.SQL.Add('and (ISORGR30.INTERPABR='+''''+'CrysI'+''''+' or ISORGR30.InterpABR='+''''+'CrysV'+''''+')');
+  //query to insert probability values into database
+  //query to update counts and max ages for each GDU processed
+  dmDVC.qUpdate.SQL.Clear;
+  dmDVC.qUpdate.SQL.Add('UPDATE GDUS');
+  dmDVC.qUpdate.SQL.Add('SET GDUS.MAXAGEREFS = :tRef');
+  dmDVC.qUpdate.SQL.Add('where GDUS.GDUID = :GDUID');
+  dmDVC.qUpdate.SQL.Add('and GDUS.RCNMDLID = :RCNMDLID');
+
+  dmDVC.cdsGDUs.Close;
+  dmDVC.qGDUs.Close;
+  dmDVC.qGDUs.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+  dmDVC.cdsGDUs.Open;
+  tInterp := 'Crys';
+  repeat
+    iGDUID := dmDVC.cdsGDUsGDUID.AsInteger;
+    tRcnMdlID := dmDVC.cdsGDUsRCNMDLID.AsString;
+    tExistReference := '';  //aim to overwrite any existing text in this field for the crystallisation process
+    StatusBar1.Panels[3].Text := IntToStr(iGDUID);
+    StatusBar1.Refresh;
+    Application.ProcessMessages;
+    WasSuccessful := true;
+    dmDVC.FindMaxAgeReference(iGDUID,tRcnMdlID,tInterp,tExistReference,WasSuccessful);
+    dmDVC.cdsGDUs.Next;
+  until dmDVC.cdsGDUs.Eof;
+  StatusBar1.Panels[4].Text := 'Identifying max. crustal residence references per GDU';
+  tInterp := 'CrsRs';
+  dmDVC.cdsMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.Close;
+  dmDVC.qMAXAGEREF.SQL.Clear;
+  dmDVC.qMAXAGEREF.SQL.Add('select gdus.gduid, gdus.maxigneousage, isogdu.recordid,');
+  dmDVC.qMAXAGEREF.SQL.Add('  isorgr30.rage,sourcelist.sourceshort');
+  dmDVC.qMAXAGEREF.SQL.Add('from gdus,isogdu,isorgr30, sourcea, sourcelist');
+  dmDVC.qMAXAGEREF.SQL.Add('where gdus.gduid=isogdu.gduid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.rcnmdlid=isogdu.rcnmdlid');
+  dmDVC.qMAXAGEREF.SQL.Add('and isogdu.recordid=isorgr30.recordid');
+  dmDVC.qMAXAGEREF.SQL.Add('and isorgr30.recordid=sourcea.recordid');
+  dmDVC.qMAXAGEREF.SQL.Add('and sourcea.refnum=sourcelist.sourcenum');
+  dmDVC.qMAXAGEREF.SQL.Add('and sourcea.sourcetypeid=:sourcetypeid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.gduid = :gduid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.rcnmdlID = :rcnmdlid');
+  dmDVC.qMAXAGEREF.SQL.Add('and gdus.maxcrustalresage=isorgr30.rage');
+  dmDVC.qMAXAGEREF.SQL.Add('and (ISORGR30.INTERPABR='+''''+'CrsRs'+''''+' and ISORGR30.ApproachAbr<>'+''''+'CHUR'+''''+')');
+  dmDVC.cdsGDUs.Close;
+  dmDVC.cdsGDUs.Open;
+  repeat
+    iGDUID := dmDVC.cdsGDUsGDUID.AsInteger;
+    tRcnMdlID := dmDVC.cdsGDUsRCNMDLID.AsString;
+    tExistReference := dmDVC.cdsGDUsMAXAGEREFS.AsString; //need to be able to concatenate results
+    StatusBar1.Panels[3].Text := IntToStr(iGDUID);
+    StatusBar1.Refresh;
+    Application.ProcessMessages;
+    WasSuccessful := true;
+    dmDVC.FindMaxAgeReference(iGDUID,tRcnMdlID,tInterp,tExistReference,WasSuccessful);
+    dmDVC.cdsGDUs.Next;
+  until dmDVC.cdsGDUs.Eof;
+  StatusBar1.Panels[3].Text := '';
+  StatusBar1.Panels[4].Text := 'Completed MaxAge references';
+  StatusBar1.Refresh;
+end;
 
 end.
