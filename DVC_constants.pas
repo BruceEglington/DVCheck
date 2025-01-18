@@ -7,11 +7,13 @@ const
   MaxSeries  = 5;
   MaxGuestRecords = 500;
   AgeTolerance = 20000.0;
+  //MaxSteps        = 2500;
   MaxSteps        = 2500;
   SpectrumStartAge = 0.0;
   SpectrumEndAge = 4500.0;
   DefaultMissingValue = -999.99;
-  PDFcutoff = 0.1;
+  //PDFcutoff = 100.1;   // original cutoof
+  PDFcutoff = 0.01;  //experimental
 
   DecayConst147Sm : double = 6.54e-12;
   DecayConst176Hf : double = 1.867e-11;
@@ -37,10 +39,15 @@ const
   ValueForCrys : string = 'Crys';
   ValueForMetpR : string = 'MetpR';
   ValueForCrsRs : string = 'CrsRs';
+  ValueForCool : string = 'Cool';
+  ValueForLIPS : string = 'LIPS';
   ValueForDetrital : string = 'Detri';
+  ValueForDetrital2DM : string = 'DetDM';
+  ValueForIgneousZr2DM : string = 'IgnDM';
   ValueForSourceTypeA : string = 'A';
   ValueForSourceTypeC : string = 'C';
   ValueForEmptyRecords : string = 'Empty';
+  ValueForDeposit : string = 'Dpst';
 
 
 var

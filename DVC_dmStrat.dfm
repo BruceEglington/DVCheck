@@ -2,17 +2,17 @@ object dmStrat: TdmStrat
   Height = 648
   Width = 584
   object sqlcStratDB: TSQLConnection
-    ConnectionName = 'StratDB_bromo2'
-    DriverName = 'DevartFirebird'
+    ConnectionName = 'StratDB_Local'
+    DriverName = 'Firebird'
     LoginPrompt = False
     Params.Strings = (
       'VendorLibOsx=libfbclient.dylib'
       'GetDriverFunc=getSQLDriverFirebird'
       'LibraryName=dbexpida41.dll'
       'VendorLib=c:\exe32\fbclient.dll'
-      'DataBase=bromo2.usask.ca:s:/data/firebird/stratdb2021v30.fdb'
-      'User_Name=SYSDBA'
-      'Password=V0lcano3^'
+      'DataBase=C:\Data\Firebird\STRATDB2024V30_UTF8.fdb'
+      'User_Name=sysdba'
+      'Password=Zbxc456~'
       'SQLDialect=3'
       'BlobSize=-1'
       'ErrorResourceFile='
@@ -20,19 +20,12 @@ object dmStrat: TdmStrat
       'DevartFirebird TransIsolation=ReadCommitted'
       'ProductName=DevartFirebird'
       
-        'DriverPackageLoader=TDBXDynalinkDriverLoader,DBXCommonDriver260.' +
+        'DriverPackageLoader=TDBXDynalinkDriverLoader,DBXCommonDriver290.' +
         'bpl'
       
         'MetaDataPackageLoader=TDBXDevartInterBaseMetaDataCommandFactory,' +
-        'DbxDevartInterBaseDriver260.bpl'
+        'DbxDevartInterBaseDriver290.bpl'
       'DriverUnit=DbxDevartInterBase'
-      'CharLength=1'
-      'EnableBCD=false'
-      'OptimizedNumerics=false'
-      'LongStrings=True'
-      'UseQuoteChar=False'
-      'FetchAll=False'
-      'UseUnicode=False'
       '')
     Left = 28
     Top = 16
@@ -450,5 +443,147 @@ object dmStrat: TdmStrat
     SQLConnection = sqlcStratDB
     Left = 88
     Top = 16
+  end
+  object qDepGDU: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <>
+    SQL.Strings = (
+      'select * '
+      'from DepositGDU'
+      '')
+    SQLConnection = sqlcStratDB
+    Left = 112
+    Top = 427
+  end
+  object dspDepGDU: TDataSetProvider
+    DataSet = qDepGDU
+    Left = 152
+    Top = 427
+  end
+  object cdsDepGDU: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspDepGDU'
+    Left = 192
+    Top = 427
+    object cdsDepGDURECORDID: TIntegerField
+      FieldName = 'RECORDID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object cdsDepGDURCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Size = 10
+    end
+    object cdsDepGDUGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      KeyFields = 'RECORDID;GDUID;RCNMDLID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+  end
+  object dsDepGDU: TDataSource
+    DataSet = cdsDepGDU
+    Left = 232
+    Top = 427
+  end
+  object qGDUDepositAges: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftString
+        Name = 'UserID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftString
+        Name = 'RcnMdlID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      
+        'select DEPOSITGDU.depositid,DEPOSITGDU.RCNMDLID,DEPOSITGDU.GDUID' +
+        ','
+      '  Deposits.approxage,Deposits.approxageuncertainty,'
+      
+        '  DepositClans.depositclanid, depositclans.depositclan,depositcl' +
+        'ans.parentclan'
+      'from depositGDU,deposits,depositclans,userswhofor, depositfor'
+      'where deposits.sdbdepositid=depositgdu.depositid'
+      'and deposits.sdbdepositid=depositfor.sdbdepositid'
+      'and depositfor.whoforid=userswhofor.whoforid'
+      'and userswhofor.userid=:UserID'
+      'and depositGDU.RCNMDLID= :RcnMdlID'
+      'and depositGDU.GDUID = :GDUID'
+      'and deposits.approxage > 0.0'
+      'and deposits.depositclanid=depositclans.depositclanid'
+      'order by deposits.sdbdepositid')
+    SQLConnection = sqlcStratDB
+    Left = 112
+    Top = 491
+  end
+  object dspGDUDepositAges: TDataSetProvider
+    DataSet = qGDUDepositAges
+    Left = 152
+    Top = 491
+  end
+  object cdsGDUDepositAges: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDUDepositAges'
+    Left = 192
+    Top = 491
+    object cdsGDUDepositAgesDEPOSITID: TIntegerField
+      FieldName = 'DEPOSITID'
+      Required = True
+    end
+    object cdsGDUDepositAgesRCNMDLID: TStringField
+      FieldName = 'RCNMDLID'
+      Required = True
+      Size = 40
+    end
+    object cdsGDUDepositAgesGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDUDepositAgesAPPROXAGE: TFloatField
+      FieldName = 'APPROXAGE'
+    end
+    object cdsGDUDepositAgesAPPROXAGEUNCERTAINTY: TFloatField
+      FieldName = 'APPROXAGEUNCERTAINTY'
+    end
+    object cdsGDUDepositAgesDEPOSITCLANID: TIntegerField
+      FieldName = 'DEPOSITCLANID'
+      Required = True
+    end
+    object cdsGDUDepositAgesDEPOSITCLAN: TStringField
+      FieldName = 'DEPOSITCLAN'
+      Required = True
+      Size = 300
+    end
+    object cdsGDUDepositAgesPARENTCLAN: TStringField
+      FieldName = 'PARENTCLAN'
+      Size = 200
+    end
+  end
+  object dsGDUDepositAges: TDataSource
+    DataSet = cdsGDUDepositAges
+    Left = 232
+    Top = 491
   end
 end

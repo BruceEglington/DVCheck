@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, WideStrings, FMTBcd, DB, DBClient, Provider,
   midaslib,
-  SqlExpr, DbxDevartInterBase;
+  SqlExpr, DbxDevartInterBase, Data.DBXFirebird;
 
 type
   TdmStrat = class(TDataModule)
@@ -65,6 +65,25 @@ type
     cdsDepIsotopeCountCOUNTO: TIntegerField;
     SQLMonitor1: TSQLMonitor;
     cdsDepIsotopeCountCOUNTHF: TIntegerField;
+    qDepGDU: TSQLQuery;
+    dspDepGDU: TDataSetProvider;
+    cdsDepGDU: TClientDataSet;
+    cdsDepGDURECORDID: TIntegerField;
+    cdsDepGDURCNMDLID: TStringField;
+    cdsDepGDUGDUID: TFMTBCDField;
+    dsDepGDU: TDataSource;
+    qGDUDepositAges: TSQLQuery;
+    dspGDUDepositAges: TDataSetProvider;
+    cdsGDUDepositAges: TClientDataSet;
+    dsGDUDepositAges: TDataSource;
+    cdsGDUDepositAgesDEPOSITID: TIntegerField;
+    cdsGDUDepositAgesRCNMDLID: TStringField;
+    cdsGDUDepositAgesGDUID: TFMTBCDField;
+    cdsGDUDepositAgesAPPROXAGE: TFloatField;
+    cdsGDUDepositAgesAPPROXAGEUNCERTAINTY: TFloatField;
+    cdsGDUDepositAgesDEPOSITCLANID: TIntegerField;
+    cdsGDUDepositAgesDEPOSITCLAN: TStringField;
+    cdsGDUDepositAgesPARENTCLAN: TStringField;
   private
     { Private declarations }
   public

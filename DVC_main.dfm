@@ -146,6 +146,35 @@ object DVCmain: TDVCmain
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
         end
+        object DBGrid1: TDBGrid
+          Left = 16
+          Top = 64
+          Width = 467
+          Height = 321
+          TabOrder = 2
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'GDUID'
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'AGE'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'AGEERROR'
+              Visible = True
+            end>
+        end
       end
       object Panel4: TPanel
         Left = 499
@@ -396,7 +425,7 @@ object DVCmain: TDVCmain
         OnClick = Metamorphismages1Click
       end
       object CrustalResidenceAges1: TMenuItem
-        Caption = 'Crustal residence ages'
+        Caption = 'WR Crustal residence ages'
         OnClick = CrustalResidenceAges1Click
       end
       object DetritalAges1: TMenuItem
@@ -407,6 +436,27 @@ object DVCmain: TDVCmain
         Caption = 'Detrital residence ages'
         OnClick = DetritalResidenceAges1Click
       end
+      object GDUzr2DM: TMenuItem
+        Caption = 'Igneous zr 2DM'
+        OnClick = GDUzr2DMClick
+      end
+      object GDULIPS: TMenuItem
+        Caption = 'LIP ages'
+        OnClick = GDULIPSClick
+      end
+      object GDUCoolIntermediate: TMenuItem
+        Caption = 'Cooling - intermediate closure T'
+        OnClick = GDUCoolIntermediateClick
+      end
+      object GDUCoolLow: TMenuItem
+        Caption = 'Cooling - low closure T'
+        OnClick = GDUCoolLowClick
+      end
+      object GDUCoolVeryLow: TMenuItem
+        Caption = 'Cooling - very low closure T'
+        Enabled = False
+        OnClick = GDUCoolVeryLowClick
+      end
       object AllAgeInterpretations1: TMenuItem
         Caption = 'All age interpretations'
         OnClick = AllAgeInterpretations1Click
@@ -415,12 +465,81 @@ object DVCmain: TDVCmain
         Caption = 'Max age references'
         OnClick = MaxAgeReferences1Click
       end
+      object GDU2500: TMenuItem
+        Caption = 'Steps = 2500'
+        Checked = True
+        OnClick = GDU2500Click
+      end
+      object GDU45: TMenuItem
+        Caption = 'Steps = 45'
+        OnClick = GDU45Click
+      end
+      object GDUDepositVMS: TMenuItem
+        Caption = 'Deposits - VMS'
+        OnClick = GDUDepositVMSClick
+      end
+      object GDUDepositPorphyry: TMenuItem
+        Caption = 'Deposits - Porphyry'
+        OnClick = GDUDepositPorphyryClick
+      end
+      object GDUDepositIOCG: TMenuItem
+        Caption = 'Deposits - IOCG'
+        OnClick = GDUDepositIOCGClick
+      end
+      object GDUDepositLodeGold: TMenuItem
+        Caption = 'Deposits - Orogenic gold'
+        OnClick = GDUDepositLodeGoldClick
+      end
+      object GDUDepositClasticPbZn: TMenuItem
+        Caption = 'Deposits - Clastic Pb-Zn'
+        OnClick = GDUDepositClasticPbZnClick
+      end
+      object GDUDepositNiCuPGE_ign: TMenuItem
+        Caption = 'Deposits - Igneous Ni-Cu-PGE'
+        OnClick = GDUDepositNiCuPGE_ignClick
+      end
+      object GDUDepositAlkaline: TMenuItem
+        Caption = 'Deposits - Alkaline'
+        OnClick = GDUDepositAlkalineClick
+      end
+      object GDUDepositLimberliteLamproite: TMenuItem
+        Caption = 'Deposits - Kimberlites and lamproites'
+        OnClick = GDUDepositLimberliteLamproiteClick
+      end
+      object GDUDepositSedimentaryCopper: TMenuItem
+        Caption = 'Deposits - Sedimentary copper'
+        OnClick = GDUDepositSedimentaryCopperClick
+      end
+      object GDUDepositMVT: TMenuItem
+        Caption = 'Deposits - MVT'
+        OnClick = GDUDepositMVTClick
+      end
+      object GDUDepositPegmatite: TMenuItem
+        Caption = 'Deposits - Pegmatite'
+        OnClick = GDUDepositPegmatiteClick
+      end
+      object CrystallisationMinAge1: TMenuItem
+        Caption = 'Crystallisation minimum age'
+        OnClick = CrystallisationMinAge1Click
+      end
     end
     object About1: TMenuItem
       Caption = '&Help'
       object About2: TMenuItem
         Caption = '&About'
         OnClick = About2Click
+      end
+    end
+    object Models1: TMenuItem
+      Caption = 'Models'
+      object Models_PalaeoPlates1: TMenuItem
+        Caption = 'PalaeoPlates'
+        Checked = True
+        OnClick = Models_PalaeoPlates1Click
+      end
+      object Models_Global1: TMenuItem
+        Caption = 'Global'
+        OnClick = Models_Global1Click
       end
     end
   end

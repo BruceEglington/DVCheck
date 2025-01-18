@@ -10,7 +10,8 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   DVC_constants in 'DVC_constants.pas',
-  Mathproc in '..\Eglington Delphi common code items\Mathproc.pas';
+  Mathproc in '..\Eglington Delphi common code items\Mathproc.pas',
+  DVC_gduValues in 'DVC_gduValues.pas' {fmGDU_values};
 
 {$R *.res}
 
@@ -23,5 +24,6 @@ begin
   Application.CreateForm(TDVCreclim, DVCreclim);
   Application.CreateForm(TdmStrat, dmStrat);
   Application.CreateForm(TAboutBox, AboutBox);
+  Application.CreateForm(TfmGDU_values, fmGDU_values);
   Application.Run;
 end.
