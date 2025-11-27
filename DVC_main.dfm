@@ -146,35 +146,6 @@ object DVCmain: TDVCmain
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
         end
-        object DBGrid1: TDBGrid
-          Left = 16
-          Top = 64
-          Width = 467
-          Height = 321
-          TabOrder = 2
-          TitleFont.Charset = DEFAULT_CHARSET
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -11
-          TitleFont.Name = 'MS Sans Serif'
-          TitleFont.Style = []
-          Columns = <
-            item
-              Expanded = False
-              FieldName = 'GDUID'
-              Width = 60
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'AGE'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'AGEERROR'
-              Visible = True
-            end>
-        end
       end
       object Panel4: TPanel
         Left = 499
@@ -345,11 +316,11 @@ object DVCmain: TDVCmain
     object Check1: TMenuItem
       Caption = '&Check'
       object Whoforrecordsexist1: TMenuItem
-        Caption = 'Who &for records exist'
-        OnClick = Whoforrecordsexist1Click
+        Caption = 'Who &for records exist - DateView'
+        OnClick = WhoforrecordsexistDV1Click
       end
       object Referencerecordsexist1: TMenuItem
-        Caption = '&Reference records exist'
+        Caption = '&Reference records exist - DateView'
         OnClick = Referencerecordsexist1Click
       end
       object Deleteunlinkedsamples1: TMenuItem
@@ -357,7 +328,7 @@ object DVCmain: TDVCmain
         Visible = False
       end
       object Validityrecordsexist1: TMenuItem
-        Caption = '&Validity records exist'
+        Caption = '&Validity records exist - DateView'
         OnClick = Validityrecordsexist1Click
       end
       object AreaIDsareconsistent1: TMenuItem
@@ -386,6 +357,10 @@ object DVCmain: TDVCmain
       object Duplicateagerecords1: TMenuItem
         Caption = 'Duplicate age records'
         OnClick = Duplicateagerecords1Click
+      end
+      object WhoforrecordsexistDep1: TMenuItem
+        Caption = 'Who for records exist - Deposits'
+        OnClick = WhoforrecordsexistDep1Click
       end
     end
     object Link1: TMenuItem
@@ -521,6 +496,10 @@ object DVCmain: TDVCmain
       object CrystallisationMinAge1: TMenuItem
         Caption = 'Crystallisation minimum age'
         OnClick = CrystallisationMinAge1Click
+      end
+      object GDUIgneousZirconUnmixing1: TMenuItem
+        Caption = 'Igneous zircon unmixing'
+        OnClick = GDUIgneousZirconUnmixing1Click
       end
     end
     object About1: TMenuItem

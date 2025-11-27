@@ -4,8 +4,8 @@ interface
 
 uses
   SysUtils, Classes, WideStrings, FMTBcd, DB, DBClient, Provider,
-  midaslib,
-  SqlExpr, DbxDevartInterBase, Data.DBXFirebird;
+  midaslib, DBXCommon,
+  SqlExpr, DbxDevartInterBase;
 
 type
   TdmStrat = class(TDataModule)
@@ -20,7 +20,7 @@ type
     dspCountryHasRecords: TDataSetProvider;
     cdsCountryHasRecords: TClientDataSet;
     dsCountryHasRecords: TDataSource;
-    cdsCountryHasRecordsCOUNTRYID: TStringField;
+    cdsCountryHasRecordsCOUNTRYID: TWideStringField;
     qNew: TSQLQuery;
     qParentRecords: TSQLQuery;
     dspParentRecords: TDataSetProvider;
@@ -40,14 +40,14 @@ type
     cdsUnitsStratDB: TClientDataSet;
     dsUnitsStratDB: TDataSource;
     cdsUnitsStratDBUNITID: TIntegerField;
-    cdsUnitsStratDBUNITNAME: TStringField;
-    cdsUnitsStratDBCOUNTRYID: TStringField;
+    cdsUnitsStratDBUNITNAME: TWideStringField;
+    cdsUnitsStratDBCOUNTRYID: TWideStringField;
     qParentsStratDB: TSQLQuery;
     dspParentsStratDB: TDataSetProvider;
     cdsParentsStratDB: TClientDataSet;
     dsParentsStratDB: TDataSource;
     cdsParentsStratDBUNITID: TIntegerField;
-    cdsParentsStratDBUNITNAME: TStringField;
+    cdsParentsStratDBUNITNAME: TWideStringField;
     cdsParentsStratDBPARENTID: TIntegerField;
     qDepIsotopeCount: TSQLQuery;
     dspDepIsotopeCount: TDataSetProvider;
@@ -66,30 +66,52 @@ type
     SQLMonitor1: TSQLMonitor;
     cdsDepIsotopeCountCOUNTHF: TIntegerField;
     qDepGDU: TSQLQuery;
-    dspDepGDU: TDataSetProvider;
-    cdsDepGDU: TClientDataSet;
-    cdsDepGDURECORDID: TIntegerField;
-    cdsDepGDURCNMDLID: TStringField;
-    cdsDepGDUGDUID: TFMTBCDField;
-    dsDepGDU: TDataSource;
     qGDUDepositAges: TSQLQuery;
-    dspGDUDepositAges: TDataSetProvider;
+    dsDepositIDDepFor: TDataSource;
+    cdsDepositIDDepFor: TClientDataSet;
+    cdsDepositIDDepForSDBDEPOSITID: TIntegerField;
+    dsqDepositIDDepFor: TDataSource;
+    dsDepFor: TDataSource;
+    cdsDepFor: TClientDataSet;
+    qDepositIDDepFor: TSQLQuery;
+    InsertDepFor: TSQLQuery;
+    qDepFor: TSQLQuery;
+    qDepForSDBDEPOSITID: TIntegerField;
+    dspDepositIDDepFor: TDataSetProvider;
+    qDepGDUDEPOSITID: TIntegerField;
+    qDepGDURCNMDLID: TWideStringField;
+    qDepGDUGDUID: TFMTBCDField;
+    dspDepGDU: TDataSetProvider;
+    dsqDepGDU: TDataSource;
+    cdsDepGDU: TClientDataSet;
+    dsDepGDU: TDataSource;
     cdsGDUDepositAges: TClientDataSet;
     dsGDUDepositAges: TDataSource;
+    qDepositIDDepForSDBDEPOSITID: TIntegerField;
+    cdsDepositIDDepForqDepFor: TDataSetField;
+    cdsDepForSDBDEPOSITID: TIntegerField;
+    qDepForWHOFORID: TWideStringField;
+    cdsDepForWHOFORID: TWideStringField;
+    cdsDepGDUDEPOSITID: TIntegerField;
+    cdsDepGDURCNMDLID: TWideStringField;
+    cdsDepGDUGDUID: TFMTBCDField;
+    cdsDepGDUqGDUDepositAges: TDataSetField;
     cdsGDUDepositAgesDEPOSITID: TIntegerField;
-    cdsGDUDepositAgesRCNMDLID: TStringField;
+    cdsGDUDepositAgesRCNMDLID: TWideStringField;
     cdsGDUDepositAgesGDUID: TFMTBCDField;
     cdsGDUDepositAgesAPPROXAGE: TFloatField;
     cdsGDUDepositAgesAPPROXAGEUNCERTAINTY: TFloatField;
     cdsGDUDepositAgesDEPOSITCLANID: TIntegerField;
-    cdsGDUDepositAgesDEPOSITCLAN: TStringField;
-    cdsGDUDepositAgesPARENTCLAN: TStringField;
+    cdsGDUDepositAgesDEPOSITCLAN: TWideStringField;
+    cdsGDUDepositAgesPARENTCLAN: TWideStringField;
   private
     { Private declarations }
   public
     { Public declarations }
+    StartRecord, EndRecord : integer;
     procedure DeleteDepositIsotopeCount;
     procedure InsertDepositIsotopeCount(tDepositID,tCountPb,tCountSr,tCountNd,tCountOs,tCountS,tCountSO4,tCountO : integer);
+    procedure InsertDepForRecord(tDepositID : integer;tWhoForID : string);
   end;
 
 var
@@ -148,6 +170,32 @@ begin
         dmStrat.sqlcStratDB.Rollback(TD); //on failure, undo the changes
       end;
     end;
+  except
+  end;
+end;
+
+procedure TdmStrat.InsertDepForRecord(tDepositID : integer;tWhoForID : string);
+var
+  TD: TDBXTransaction;
+begin
+  try
+    //if not dmDVC.sqlcStratDB.InTransaction then
+    //begin
+      dmStrat.InsertDepFor.Close;
+      dmStrat.InsertDepFor.ParamByName('tDepositID').AsInteger := tDepositID;
+      dmStrat.InsertDepFor.ParamByName('tWhoForID').AsString := tWhoForID;
+      if not dmStrat.sqlcStratDB.InTransaction then
+      begin
+        TD := dmStrat.sqlcStratDB.BeginTransaction(TDBXIsolations.ReadCommitted);
+        try
+          dmStrat.InsertDepFor.ExecSQL(false);
+          dmStrat.sqlcStratDB.CommitFreeAndNil(TD); //on success, commit the changes
+        except
+          dmStrat.sqlcStratDB.RollbackFreeAndNil(TD); //on failure, undo the changes
+          //WasSuccessful := false;
+        end;
+      end;
+    //end;
   except
   end;
 end;

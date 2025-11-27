@@ -11,7 +11,10 @@ uses
   Vcl.Styles,
   DVC_constants in 'DVC_constants.pas',
   Mathproc in '..\Eglington Delphi common code items\Mathproc.pas',
-  DVC_gduValues in 'DVC_gduValues.pas' {fmGDU_values};
+  DVC_gduValues in 'DVC_gduValues.pas' {fmGDU_values},
+  NumRecipes_varb in '..\Eglington Delphi common code items\NumRecipes_varb.pas',
+  NumRecipes in '..\Eglington Delphi common code items\NumRecipes.pas',
+  DVC_user in 'DVC_user.pas' {dmUser: TDataModule};
 
 {$R *.res}
 
@@ -25,5 +28,6 @@ begin
   Application.CreateForm(TdmStrat, dmStrat);
   Application.CreateForm(TAboutBox, AboutBox);
   Application.CreateForm(TfmGDU_values, fmGDU_values);
+  Application.CreateForm(TdmUser, dmUser);
   Application.Run;
 end.

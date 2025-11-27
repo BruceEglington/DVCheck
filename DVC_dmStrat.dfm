@@ -2,30 +2,23 @@ object dmStrat: TdmStrat
   Height = 648
   Width = 584
   object sqlcStratDB: TSQLConnection
-    ConnectionName = 'StratDB_Local'
-    DriverName = 'Firebird'
+    DriverName = 'DevartFirebird'
     LoginPrompt = False
     Params.Strings = (
       'VendorLibOsx=libfbclient.dylib'
       'GetDriverFunc=getSQLDriverFirebird'
-      'LibraryName=dbexpida41.dll'
-      'VendorLib=c:\exe32\fbclient.dll'
-      'DataBase=C:\Data\Firebird\STRATDB2024V30_UTF8.fdb'
-      'User_Name=sysdba'
-      'Password=Zbxc456~'
+      'LibraryName=c:\exe64\dbexpida41.dll'
+      'VendorLib=c:\exe64\fbclient.dll'
+      'DataBase=c:\data\firebird\stratdb2025v50_utf8.fdb'
+      'User_Name=SYSDBA'
+      'Password=V0lcano3^'
       'SQLDialect=3'
-      'BlobSize=-1'
-      'ErrorResourceFile='
       'LocaleCode=0000'
       'DevartFirebird TransIsolation=ReadCommitted'
       'ProductName=DevartFirebird'
-      
-        'DriverPackageLoader=TDBXDynalinkDriverLoader,DBXCommonDriver290.' +
-        'bpl'
-      
-        'MetaDataPackageLoader=TDBXDevartInterBaseMetaDataCommandFactory,' +
-        'DbxDevartInterBaseDriver290.bpl'
       'DriverUnit=DbxDevartInterBase'
+      'Charset=UTF8'
+      'UseUnicode=true'
       '')
     Left = 28
     Top = 16
@@ -105,7 +98,7 @@ object dmStrat: TdmStrat
     ProviderName = 'dspCountryHasRecords'
     Left = 104
     Top = 140
-    object cdsCountryHasRecordsCOUNTRYID: TStringField
+    object cdsCountryHasRecordsCOUNTRYID: TWideStringField
       FieldName = 'COUNTRYID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
@@ -269,13 +262,13 @@ object dmStrat: TdmStrat
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object cdsUnitsStratDBUNITNAME: TStringField
+    object cdsUnitsStratDBUNITNAME: TWideStringField
       FieldName = 'UNITNAME'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
       Size = 50
     end
-    object cdsUnitsStratDBCOUNTRYID: TStringField
+    object cdsUnitsStratDBCOUNTRYID: TWideStringField
       FieldName = 'COUNTRYID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
@@ -316,7 +309,7 @@ object dmStrat: TdmStrat
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object cdsParentsStratDBUNITNAME: TStringField
+    object cdsParentsStratDBUNITNAME: TWideStringField
       FieldName = 'UNITNAME'
       Required = True
       Size = 50
@@ -455,61 +448,34 @@ object dmStrat: TdmStrat
     SQLConnection = sqlcStratDB
     Left = 112
     Top = 427
-  end
-  object dspDepGDU: TDataSetProvider
-    DataSet = qDepGDU
-    Left = 152
-    Top = 427
-  end
-  object cdsDepGDU: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    ProviderName = 'dspDepGDU'
-    Left = 192
-    Top = 427
-    object cdsDepGDURECORDID: TIntegerField
-      FieldName = 'RECORDID'
-      KeyFields = 'RECORDID;GDUID;RCNMDLID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+    object qDepGDUDEPOSITID: TIntegerField
+      FieldName = 'DEPOSITID'
       Required = True
     end
-    object cdsDepGDURCNMDLID: TStringField
+    object qDepGDURCNMDLID: TWideStringField
       FieldName = 'RCNMDLID'
-      KeyFields = 'RECORDID;GDUID;RCNMDLID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
-      Size = 10
+      Size = 40
     end
-    object cdsDepGDUGDUID: TFMTBCDField
+    object qDepGDUGDUID: TFMTBCDField
       FieldName = 'GDUID'
-      KeyFields = 'RECORDID;GDUID;RCNMDLID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
       Precision = 20
       Size = 0
     end
   end
-  object dsDepGDU: TDataSource
-    DataSet = cdsDepGDU
-    Left = 232
-    Top = 427
-  end
   object qGDUDepositAges: TSQLQuery
     ObjectView = True
+    DataSource = dsqDepGDU
     MaxBlobSize = -1
     Params = <
       item
         DataType = ftString
-        Name = 'UserID'
+        Name = 'RCNMDLID'
         ParamType = ptInput
       end
       item
-        DataType = ftString
-        Name = 'RcnMdlID'
-        ParamType = ptInput
-      end
-      item
-        DataType = ftInteger
+        DataType = ftFMTBcd
         Name = 'GDUID'
         ParamType = ptInput
       end>
@@ -521,36 +487,177 @@ object dmStrat: TdmStrat
       
         '  DepositClans.depositclanid, depositclans.depositclan,depositcl' +
         'ans.parentclan'
-      'from depositGDU,deposits,depositclans,userswhofor, depositfor'
+      'from depositGDU,deposits,depositclans'
       'where deposits.sdbdepositid=depositgdu.depositid'
-      'and deposits.sdbdepositid=depositfor.sdbdepositid'
-      'and depositfor.whoforid=userswhofor.whoforid'
-      'and userswhofor.userid=:UserID'
       'and depositGDU.RCNMDLID= :RcnMdlID'
       'and depositGDU.GDUID = :GDUID'
       'and deposits.approxage > 0.0'
       'and deposits.depositclanid=depositclans.depositclanid'
+      'and deposits.depositclanid < 90000'
       'order by deposits.sdbdepositid')
     SQLConnection = sqlcStratDB
     Left = 112
     Top = 491
   end
-  object dspGDUDepositAges: TDataSetProvider
-    DataSet = qGDUDepositAges
-    Left = 152
-    Top = 491
+  object dsDepositIDDepFor: TDataSource
+    DataSet = cdsDepositIDDepFor
+    Left = 400
+    Top = 184
+  end
+  object cdsDepositIDDepFor: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspDepositIDDepFor'
+    Left = 376
+    Top = 184
+    object cdsDepositIDDepForSDBDEPOSITID: TIntegerField
+      FieldName = 'SDBDEPOSITID'
+      Required = True
+    end
+    object cdsDepositIDDepForqDepFor: TDataSetField
+      FieldName = 'qDepFor'
+    end
+  end
+  object dsqDepositIDDepFor: TDataSource
+    DataSet = qDepositIDDepFor
+    Left = 348
+    Top = 184
+  end
+  object dsDepFor: TDataSource
+    DataSet = cdsDepFor
+    Left = 432
+    Top = 240
+  end
+  object cdsDepFor: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 368
+    Top = 240
+    object cdsDepForSDBDEPOSITID: TIntegerField
+      FieldName = 'SDBDEPOSITID'
+      Required = True
+    end
+    object cdsDepForWHOFORID: TWideStringField
+      FieldName = 'WHOFORID'
+      Required = True
+    end
+  end
+  object qDepositIDDepFor: TSQLQuery
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftInteger
+        Name = 'StartRecord'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftInteger
+        Name = 'EndRecord'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select DEPOSITS.SDBDEPOSITID from DEPOSITS'
+      'where DEPOSITS.SDBDEPOSITID >= :StartRecord'
+      'and DEPOSITS.SDBDEPOSITID <= :EndRecord'
+      'ORDER BY DEPOSITS.SDBDEPOSITID')
+    SQLConnection = sqlcStratDB
+    Left = 296
+    Top = 184
+    object qDepositIDDepForSDBDEPOSITID: TIntegerField
+      FieldName = 'SDBDEPOSITID'
+      Required = True
+    end
+  end
+  object InsertDepFor: TSQLQuery
+    MaxBlobSize = -1
+    Params = <>
+    SQL.Strings = (
+      'INSERT INTO DEPOSITFOR'
+      '(SDBDEPOSITID, WHOFORID)'
+      'VALUES (:tDepositID, :tWhoForID)')
+    Left = 8
+    Top = 368
+  end
+  object qDepFor: TSQLQuery
+    DataSource = dsqDepositIDDepFor
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftUnknown
+        Name = 'DepositID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select * from depositfor'
+      'where Depositfor.sdbdepositid = :DepositID')
+    SQLConnection = sqlcStratDB
+    Left = 312
+    Top = 240
+    object qDepForSDBDEPOSITID: TIntegerField
+      FieldName = 'SDBDEPOSITID'
+      Required = True
+    end
+    object qDepForWHOFORID: TWideStringField
+      FieldName = 'WHOFORID'
+      Required = True
+    end
+  end
+  object dspDepositIDDepFor: TDataSetProvider
+    DataSet = qDepositIDDepFor
+    Left = 320
+    Top = 184
+  end
+  object dspDepGDU: TDataSetProvider
+    DataSet = qDepGDU
+    Left = 144
+    Top = 424
+  end
+  object dsqDepGDU: TDataSource
+    DataSet = qDepGDU
+    Left = 176
+    Top = 424
+  end
+  object cdsDepGDU: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspDepGDU'
+    Left = 208
+    Top = 424
+    object cdsDepGDUDEPOSITID: TIntegerField
+      FieldName = 'DEPOSITID'
+      Required = True
+    end
+    object cdsDepGDURCNMDLID: TWideStringField
+      FieldName = 'RCNMDLID'
+      Required = True
+      Size = 40
+    end
+    object cdsDepGDUGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsDepGDUqGDUDepositAges: TDataSetField
+      FieldName = 'qGDUDepositAges'
+    end
+  end
+  object dsDepGDU: TDataSource
+    DataSet = cdsDepGDU
+    Left = 240
+    Top = 424
   end
   object cdsGDUDepositAges: TClientDataSet
     Aggregates = <>
+    DataSetField = cdsDepGDUqGDUDepositAges
     Params = <>
-    ProviderName = 'dspGDUDepositAges'
-    Left = 192
-    Top = 491
+    Left = 208
+    Top = 488
     object cdsGDUDepositAgesDEPOSITID: TIntegerField
       FieldName = 'DEPOSITID'
       Required = True
     end
-    object cdsGDUDepositAgesRCNMDLID: TStringField
+    object cdsGDUDepositAgesRCNMDLID: TWideStringField
       FieldName = 'RCNMDLID'
       Required = True
       Size = 40
@@ -571,19 +678,19 @@ object dmStrat: TdmStrat
       FieldName = 'DEPOSITCLANID'
       Required = True
     end
-    object cdsGDUDepositAgesDEPOSITCLAN: TStringField
+    object cdsGDUDepositAgesDEPOSITCLAN: TWideStringField
       FieldName = 'DEPOSITCLAN'
       Required = True
       Size = 300
     end
-    object cdsGDUDepositAgesPARENTCLAN: TStringField
+    object cdsGDUDepositAgesPARENTCLAN: TWideStringField
       FieldName = 'PARENTCLAN'
       Size = 200
     end
   end
   object dsGDUDepositAges: TDataSource
     DataSet = cdsGDUDepositAges
-    Left = 232
-    Top = 491
+    Left = 240
+    Top = 488
   end
 end

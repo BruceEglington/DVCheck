@@ -84,7 +84,6 @@ type
     GDU2500: TMenuItem;
     GDU45: TMenuItem;
     GDULIPS: TMenuItem;
-    DBGrid1: TDBGrid;
     GDUCoolIntermediate: TMenuItem;
     GDUCoolLow: TMenuItem;
     GDUCoolVeryLow: TMenuItem;
@@ -103,11 +102,14 @@ type
     Models_PalaeoPlates1: TMenuItem;
     Models_Global1: TMenuItem;
     CrystallisationMinAge1: TMenuItem;
+    WhoforrecordsexistDep1: TMenuItem;
+    GDUIgneousZirconUnmixing1: TMenuItem;
     procedure Referencerecordsexist1Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure Validityrecordsexist1Click(Sender: TObject);
     procedure CountNumberofrecordsindatabase1Click(Sender: TObject);
-    procedure Whoforrecordsexist1Click(Sender: TObject);
+    procedure WhoforrecordsexistDV1Click(Sender: TObject);
+    procedure WhoforrecordsexistDep1Click(Sender: TObject);
     procedure Countrieshaverecords1Click(Sender: TObject);
     procedure AreaIDsareconsistent1Click(Sender: TObject);
     procedure RecordstoStratDB1Click(Sender: TObject);
@@ -165,6 +167,7 @@ type
     procedure Models_PalaeoPlates1Click(Sender: TObject);
     procedure Models_Global1Click(Sender: TObject);
     procedure CrystallisationMinAge1Click(Sender: TObject);
+    procedure GDUIgneousZirconUnmixing1Click(Sender: TObject);
   private
     { Private declarations }
     procedure GetIniFile;
@@ -184,7 +187,7 @@ implementation
 uses
   System.IOUtils,
   DVC_dm, DVC_reclim, DVC_About, DVC_dmStrat, DVC_constants, Mathproc,
-  DVC_gduValues;
+  DVC_gduValues, DVC_user;
 
 {$R *.dfm}
 
@@ -1528,6 +1531,29 @@ begin
   AgeProbabilities(iCurveOrder,tCurveInterp,'Or',GDUfrom,GDUto);
 end;
 
+procedure TDVCmain.GDUIgneousZirconUnmixing1Click(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+  GDUfrom, GDUto : integer;
+begin
+  GDUfrom := 10000;
+  GDUto := 10999;
+  try
+    SelectGDUForm := TfmGDU_values.Create(Self);
+    SelectGDUForm.tGDUmin := GDUfrom;
+    SelectGDUForm.tGDUmax := GDUto;
+    SelectGDUForm.ShowModal;
+  finally
+    GDUfrom := SelectGDUForm.tGDUmin;
+    GDUto := SelectGDUForm.tGDUmax;
+    SelectGDUForm.Free;
+  end;
+  iCurveOrder := 12;
+  tCurveInterp := ValueForCrys;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'AND',GDUfrom,GDUto);
+end;
+
 procedure TDVCmain.GDULIPSClick(Sender: TObject);
 var
   iCurveOrder : integer;
@@ -1595,14 +1621,14 @@ var
   DataPath   : string;
 begin
   DBMonitor := 'Inactive';
-  UserControlPath := 'c:/Data/Firebird/UserControl.fdb';
-  StratDBPath := 'c:/Data/Firebird/StratDB.fdb';
-  DateViewPath := 'c:/Data/Firebird/DateView.fdb';
+  UserControlPath := 'c:/Data/Firebird/UserControl2025v50_utf8.fdb';
+  StratDBPath := 'c:/Data/Firebird/StratDB2025v50_utf8.fdb';
+  DateViewPath := 'c:/Data/Firebird/DateView2025v50_utf8.fdb';
   DriverName := 'DevartFirebird';
   DBUserName := 'SYSDBA';
   DBPassword := 'masterkey';
   DBSQLDialectStr := '3';
-  DBCharSet := 'ASCII';
+  DBCharSet := 'UTF8';
   //PublicPath := TPath.GetHomePath;
   PublicPath := TPath.GetPublicPath;   // stay with PublicPath for compatibility with other database web software
   CommonFilePath := TPath.Combine(PublicPath,'EggSoft');
@@ -1610,16 +1636,16 @@ begin
   IniFilename := TPath.Combine(IniFilePath,'DVCheck.ini');
   AppIni := TIniFile.Create(IniFilename);
   try
-    UserControlPath := AppIni.ReadString('Paths','UserControl path','c:/Data/Firebird/UserControl2021v30.fdb');
-    StratDBPath := AppIni.ReadString('Paths','StratDB path','c:/Data/Firebird/StratDB2021v30.fdb');
-    DateViewPath := AppIni.ReadString('Paths','DateView path','c:/Data/Firebird/DateView2021v30.fdb');
+    UserControlPath := AppIni.ReadString('Paths','UserControl path','c:/Data/Firebird/UserControl2025v50_utf8.fdb');
+    StratDBPath := AppIni.ReadString('Paths','StratDB path','c:/Data/Firebird/StratDB2025v50_utf8.fdb');
+    DateViewPath := AppIni.ReadString('Paths','DateView path','c:/Data/Firebird/DateView2025v50_utf8.fdb');
     DriverName := AppIni.ReadString('Parameters','DriverName','DevartFirebird');
     DBUserName := AppIni.ReadString('Parameters','User_Name','SYSDBA');
     DBPassword := AppIni.ReadString('Parameters','Password','masterkey');
     DBSQLDialectStr := AppIni.ReadString('Parameters','SQLDialect','3');
-    DBCharSet := AppIni.ReadString('Parameters','Charset','ASCII');
-    DBVendorLib := AppIni.ReadString('Parameters','VendorLib','c:\exe32\fbclient.dll');
-    DBMonitor := AppIni.ReadString('Monitor','DBMonitor','Inactive');
+    DBCharSet := AppIni.ReadString('Parameters','Charset','UTF8');
+    DBVendorLib := AppIni.ReadString('Parameters','VendorLib','c:\exe642\fbclient.dll');
+    DBMonitor := AppIni.ReadString('Monitor','DBMonitor','inactive');
     //define connection parameters for StratDB connection
     dmStrat.sqlcStratDB.Connected := false;
     dmStrat.sqlcStratDB.Params.Clear;
@@ -1630,17 +1656,10 @@ begin
     dmStrat.sqlcStratDB.Params.Append('SQLDialect='+DBSQLDialectStr);
     dmStrat.sqlcStratDB.Params.Append('Charset='+DBCharSet);
     dmStrat.sqlcStratDB.Params.Append('VendorLib='+DBVendorLib);
-    dmStrat.sqlcStratDB.Params.Append('libraryname=dbexpida41.dll');
-    dmStrat.sqlcStratDB.Params.Append('LocaleCode=0000');
-    dmStrat.sqlcStratDB.Params.Append('DevartInterBase TransIsolation=ReadCommitted');
-    dmStrat.sqlcStratDB.Params.Append('WaitOnLocks=True');
-    dmStrat.sqlcStratDB.Params.Append('CharLength=1');
-    dmStrat.sqlcStratDB.Params.Append('EnableBCD=false');
-    dmStrat.sqlcStratDB.Params.Append('OptimizedNumerics=false');
-    dmStrat.sqlcStratDB.Params.Append('LongStrings=True');
-    dmStrat.sqlcStratDB.Params.Append('UseQuoteChar=False');
-    dmStrat.sqlcStratDB.Params.Append('FetchAll=False');
-    dmStrat.sqlcStratDB.Params.Append('UseUnicode=False');
+    dmStrat.sqlcStratDB.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    //dmStrat.sqlcStratDB.Params.Append('LocaleCode=0000');
+    dmStrat.sqlcStratDB.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
+    dmStrat.sqlcStratDB.Params.Append('UseUnicode=true');
     //define connection parameters for DateView connection
     dmDVC.sqlcDateView.Connected := false;
     dmDVC.sqlcDateView.Params.Clear;
@@ -1651,21 +1670,28 @@ begin
     dmDVC.sqlcDateView.Params.Append('SQLDialect='+DBSQLDialectStr);
     dmDVC.sqlcDateView.Params.Append('Charset='+DBCharSet);
     dmDVC.sqlcDateView.Params.Append('VendorLib='+DBVendorLib);
-    dmDVC.sqlcDateView.Params.Append('libraryname=dbexpida41.dll');
-    dmDVC.sqlcDateView.Params.Append('LocaleCode=0000');
-    dmDVC.sqlcDateView.Params.Append('DevartInterBase TransIsolation=ReadCommitted');
-    dmDVC.sqlcDateView.Params.Append('WaitOnLocks=True');
-    dmDVC.sqlcDateView.Params.Append('CharLength=1');
-    dmDVC.sqlcDateView.Params.Append('EnableBCD=false');
-    dmDVC.sqlcDateView.Params.Append('OptimizedNumerics=false');
-    dmDVC.sqlcDateView.Params.Append('LongStrings=True');
-    dmDVC.sqlcDateView.Params.Append('UseQuoteChar=False');
-    dmDVC.sqlcDateView.Params.Append('FetchAll=False');
-    dmDVC.sqlcDateView.Params.Append('UseUnicode=False');
+    dmDVC.sqlcDateView.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    //dmDVC.sqlcDateView.Params.Append('LocaleCode=0000');
+    dmDVC.sqlcDateView.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
+    dmDVC.sqlcDateView.Params.Append('UseUnicode=true');
+    //define connection parameters for UserControl connection
+    dmUser.sqlcUser.Connected := false;
+    dmUser.sqlcUser.Params.Clear;
+    dmUser.sqlcUser.Params.Append('DriverName='+DriverName);
+    dmUser.sqlcUser.Params.Append('Database='+StratDBPath);
+    dmUser.sqlcUser.Params.Append('User_Name='+DBUserName);
+    dmUser.sqlcUser.Params.Append('Password='+DBPassword);
+    dmUser.sqlcUser.Params.Append('SQLDialect='+DBSQLDialectStr);
+    dmUser.sqlcUser.Params.Append('Charset='+DBCharSet);
+    dmUser.sqlcUser.Params.Append('VendorLib='+DBVendorLib);
+    dmUser.sqlcUser.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    dmUser.sqlcUser.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
+    dmUser.sqlcUser.Params.Append('UseUnicode=true');
     if (DBMonitor = 'Active') then
     begin
       dmStrat.SQLMonitor1.Active := true;
       dmDVC.SQLMonitor1.Active := true;
+      dmUser.SQLMonitor1.Active := true;
     end else
     begin
       dmStrat.SQLMonitor1.Active := false;
@@ -2214,7 +2240,7 @@ begin
   end;
 end;
 
-procedure TDVCmain.Whoforrecordsexist1Click(Sender: TObject);
+procedure TDVCmain.WhoforrecordsexistDV1Click(Sender: TObject);
 const
   DefaultWhoForID = 'PUBL';
 var
@@ -2265,6 +2291,61 @@ begin
     until dmDVC.cdsRecordIDsIsoFor.Eof;
     dmDVC.cdsRecordIDsIsoFor.First;
     StatusBar1.Panels[4].Text := 'Completed checking record links for ISOFOR';
+    StatusBar1.Refresh;
+  end;
+end;
+
+procedure TDVCmain.WhoforrecordsexistDep1Click(Sender: TObject);
+const
+  DefaultWhoForID = 'PUBL';
+var
+  iChecked, iCorrected, iFailed : integer;
+  tDepositID : integer;
+begin
+  StatusBar1.Panels[3].Text := ' ';
+  StatusBar1.Panels[4].Text := 'Checking record links for DEPFOR';
+  StatusBar1.Refresh;
+  DVCreclim.ShowModal;
+  dbnRecordIDs.DataSource := dmDVC.dsRecordIDsIsoFor;
+  dbgRecordIDs.DataSource := dmDVC.dsRecordIDsIsoFor;
+  dmStrat.qDepositIDDepFor.Close;
+  dmStrat.qDepositIDDepFor.ParamByName('StartRecord').AsInteger := dmStrat.StartRecord;
+  dmStrat.qDepositIDDepFor.ParamByName('EndRecord').AsInteger := dmStrat.EndRecord;
+  dmStrat.cdsDepositIDDepFor.Close;
+  dmStrat.cdsDepositIDDepFor.Open;
+  if (dmStrat.cdsDepositIDDepFor.RecordCount > 0) then
+  begin
+    iChecked := 0;
+    iCorrected := 0;
+    iFailed := 0;
+    StatusBar1.Panels[4].Text := 'Checking record links for DEPFOR';
+    dbn2.DataSource := dmStrat.dsDepFor;
+    dbg2.DataSource := dmStrat.dsDepFor;
+    repeat
+      iChecked := iChecked + 1;
+      if (dmStrat.cdsDepFor.RecordCount=0) then
+      begin
+        try
+          tDepositID := dmStrat.cdsDepositIDDepForSDBDepositID.AsInteger;
+          dmStrat.InsertDepForRecord(tDepositID,DefaultWhoForID);
+          //dmStrat.cdsIsoFor.Insert;
+          //dmStrat.cdsIsoForRECORDID.AsInteger := dmStrat.cdsDepositIDDepForRECORDID.AsInteger;
+          //dmStrat.cdsIsoForWHOFORID.AsString := DefaultWhoForID;
+          //dmStrat.cdsIsoFor.Post;
+          //dmStrat.cdsIsoFor.ApplyUpdates(0);
+          iCorrected := iCorrected + 1;
+        except
+          iFailed := iFailed + 1;
+        end;
+      end;
+      StatusBar1.Panels[0].Text := IntToStr(iChecked);
+      StatusBar1.Panels[1].Text := IntToStr(iCorrected);
+      StatusBar1.Panels[2].Text := IntToStr(iFailed);
+      StatusBar1.Refresh;
+      dmStrat.cdsDepositIDDepFor.Next;
+    until dmStrat.cdsDepositIDDepFor.Eof;
+    dmStrat.cdsDepositIDDepFor.First;
+    StatusBar1.Panels[4].Text := 'Completed checking record links for DEPFOR';
     StatusBar1.Refresh;
   end;
 end;
@@ -2636,7 +2717,7 @@ begin
       dmDVC.qGDURECORDAGES.SQL.Add('and isorgr30.materialabr=blockingt.materialabr');
       dmDVC.qGDURECORDAGES.SQL.Add('and isorgr30.isotopesystem=blockingt.isosystem');
       dmDVC.qGDURECORDAGES.SQL.Add('and isorgr30.approachabr=blockingt.approachabr');
-      dmDVC.qGDURECORDAGES.SQL.Add('and blockingt.closuretempassocid=:ClosureTAssoc');
+      dmDVC.qGDURECORDAGES.SQL.Add('and blockingt.clostmpassocid=:ClosureTAssoc');
     end;
     if ((iCurveOrder = 3) or (iCurveOrder = 5) or (iCurveOrder = 6)) then // various mantle extraction
     begin
@@ -2692,7 +2773,7 @@ begin
     end;
     dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNNo = SMPDATAZR.SampleNo');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.LithClassID = '+''''+'S'+'''');
     if (iCurveOrder = 4) then
@@ -2718,7 +2799,7 @@ begin
     dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_IGN.T2DM_Ma as age, SMPDATAZR_IGN.T2DM_Err_Ma as ageerror');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR_IGN,SMPDATAZR_SMP_GDU');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNNo = SMPDATAZR_IGN.SampleNo');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR_IGN.SampleNo');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.ConcordClass <= 3');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.LithClassID = '+''''+'I'+'''');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma > 0.000');
@@ -2753,7 +2834,7 @@ begin
     dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.Age_UPb_Ma+2.0*(SMPDATAZR.T2DM_Ma-SMPDATAZR.Age_UPb_Ma) as T2');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR_IGN,SMPDATAZR_SMP_GDU');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNNo = SMPDATAZR_IGN.SampleNo');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR_IGN.SampleNo');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.ConcordClass <= 3');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.LithClassID = '+''''+'I'+'''');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma > 0.000');
@@ -2767,7 +2848,7 @@ begin
   //dmDVC.qNew.SQL.Add('VALUES (:RCNMDLID, :Steps, :GDUID, :CURVEORDER, :PDFORDER, :AGE, :PDFVALUE, :CURVEINTERP )');
   dmDVC.qNew.SQL.Add('(RCNMDLID, STEPS, GDUID, CURVEORDER, PDFORDER, AGE, PDFVALUE, CURVEINTERP, CUMULATIVEVALUE )');
   dmDVC.qNew.SQL.Add('VALUES (:RCNMDLID, :Steps, :GDUID, :CURVEORDER, :PDFORDER, :AGE, :PDFVALUE, :CURVEINTERP, :CUMULATIVEVALUE )');
-  //dmUser.SetDeveloperData(dmDVC.qNew.SQL.Text);
+  dmUser.SetDeveloperData(dmDVC.qNew.SQL.Text);
   //query to delete existing probability values from database for specified reconstruction model and GDU
   dmDVC.qDelete.SQL.Clear;
   dmDVC.qDelete.SQL.Add('DELETE FROM GDUSPDF');
