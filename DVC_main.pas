@@ -82,7 +82,7 @@ type
     DetritalResidenceAges1: TMenuItem;
     GDUzr2DM: TMenuItem;
     GDU2500: TMenuItem;
-    GDU45: TMenuItem;
+    GDU0045: TMenuItem;
     GDULIPS: TMenuItem;
     GDUCoolIntermediate: TMenuItem;
     GDUCoolLow: TMenuItem;
@@ -104,6 +104,9 @@ type
     CrystallisationMinAge1: TMenuItem;
     WhoforrecordsexistDep1: TMenuItem;
     GDUIgneousZirconUnmixing1: TMenuItem;
+    GDUCratons1: TMenuItem;
+    GDUzrUPb: TMenuItem;
+    GDU0180: TMenuItem;
     procedure Referencerecordsexist1Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure Validityrecordsexist1Click(Sender: TObject);
@@ -147,7 +150,7 @@ type
     procedure DetritalAges1Click(Sender: TObject);
     procedure DetritalResidenceAges1Click(Sender: TObject);
     procedure GDUzr2DMClick(Sender: TObject);
-    procedure GDU45Click(Sender: TObject);
+    procedure GDU0045Click(Sender: TObject);
     procedure GDU2500Click(Sender: TObject);
     procedure GDULIPSClick(Sender: TObject);
     procedure GDUDepositVMSClick(Sender: TObject);
@@ -168,6 +171,10 @@ type
     procedure Models_Global1Click(Sender: TObject);
     procedure CrystallisationMinAge1Click(Sender: TObject);
     procedure GDUIgneousZirconUnmixing1Click(Sender: TObject);
+    procedure GDUCratons1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure GDU0180Click(Sender: TObject);
+    procedure GDUzrUPbClick(Sender: TObject);
   private
     { Private declarations }
     procedure GetIniFile;
@@ -1160,51 +1167,52 @@ begin
   Close;
 end;
 
+procedure TDVCmain.FormCreate(Sender: TObject);
+begin
+  //GetInifile;
+end;
+
 procedure TDVCmain.FormShow(Sender: TObject);
 begin
   Steps := 2500;
-  //GetIniFile;
-  with dmDVC do
-  begin
-    try
-      sqlcDateView.Connected := false;
-    except
-    end;
-    try
-      sqlcDateView.Connected := true;
-    except
-    end;
+  try
+    dmDVC.sqlcDateView.Connected := false;
+  except
   end;
-  with dmDVC do
-  begin
-    //
+  try
+     dmStrat.sqlcStratDB.Connected := false;
+  except
   end;
-  with dmStrat do
-  begin
-    try
-      sqlcStratDB.Connected := false;
-    except
-    end;
-    try
-      sqlcStratDB.Connected := true;
-    except
-    end;
+  try
+    dmUser.sqlcUser.Connected := false;
+  except
   end;
-  with dmStrat do
-  begin
-    //
+  GetIniFile;
+  try
+    dmDVC.sqlcDateView.Connected := true;
+  except
+  end;
+  try
+    dmStrat.sqlcStratDB.Connected := true;
+  except
+  end;
+  try
+    dmUser.sqlcUser.Connected := true;
+  except
   end;
 end;
 
 procedure TDVCmain.GDU2500Click(Sender: TObject);
 begin
-  GDU45.Checked := false;
+  GDU0045.Checked := false;
+  GDU0180.Checked := false;
   GDU2500.Checked := true;
 end;
 
-procedure TDVCmain.GDU45Click(Sender: TObject);
+procedure TDVCmain.GDU0045Click(Sender: TObject);
 begin
-  GDU45.Checked := true;
+  GDU0045.Checked := true;
+  GDU0180.Checked := false;
   GDU2500.Checked := false;
 end;
 
@@ -1216,6 +1224,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1227,7 +1240,7 @@ begin
     SelectGDUForm.Free;
   end;
   iCurveOrder := 8;
-  tCurveInterp := ValueForCool;
+  tCurveInterp := ValueForCoolIntermediate;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
 end;
 
@@ -1239,6 +1252,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1250,7 +1268,7 @@ begin
     SelectGDUForm.Free;
   end;
   iCurveOrder := 9;
-  tCurveInterp := ValueForCool;
+  tCurveInterp := ValueForCoolLow;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
 end;
 
@@ -1263,6 +1281,11 @@ begin
   // not implemented
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1274,8 +1297,13 @@ begin
     SelectGDUForm.Free;
   end;
   iCurveOrder := 10;
-  tCurveInterp := ValueForCool;
+  tCurveInterp := ValueForCoolVeryLow;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
+end;
+
+procedure TDVCmain.GDUCratons1Click(Sender: TObject);
+begin
+  GDUCratons1.Checked := not GDUCratons1.Checked;
 end;
 
 procedure TDVCmain.GDUDepositAlkalineClick(Sender: TObject);
@@ -1286,6 +1314,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1309,6 +1342,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1332,6 +1370,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1355,6 +1398,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1378,6 +1426,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1401,6 +1454,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1424,6 +1482,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1447,6 +1510,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1470,6 +1538,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1493,6 +1566,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1516,6 +1594,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1539,6 +1622,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 10999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1562,6 +1650,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1573,7 +1666,7 @@ begin
     SelectGDUForm.Free;
   end;
   iCurveOrder := 7;
-  tCurveInterp := ValueForCrys;
+  tCurveInterp := ValueForLIPs;
   AgeProbabilities(iCurveOrder,tCurveInterp,'Or',GDUfrom,GDUto);
 end;
 
@@ -1585,6 +1678,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1596,7 +1694,35 @@ begin
     SelectGDUForm.Free;
   end;
   iCurveOrder := 6;
-  tCurveInterp := ValueForIgneousZr2DM;
+  tCurveInterp := ValueForIgneous1Zr2DM;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
+end;
+
+procedure TDVCmain.GDUzrUPbClick(Sender: TObject);
+var
+  iCurveOrder : integer;
+  tCurveInterp : string;
+  GDUfrom, GDUto : integer;
+begin
+  GDUfrom := 10000;
+  GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  try
+    SelectGDUForm := TfmGDU_values.Create(Self);
+    SelectGDUForm.tGDUmin := GDUfrom;
+    SelectGDUForm.tGDUmax := GDUto;
+    SelectGDUForm.ShowModal;
+  finally
+    GDUfrom := SelectGDUForm.tGDUmin;
+    GDUto := SelectGDUForm.tGDUmax;
+    SelectGDUForm.Free;
+  end;
+  iCurveOrder := 15;
+  tCurveInterp := ValueForIgneous1ZrUPb;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
 end;
 
@@ -1616,7 +1742,7 @@ var
   CommonFilePath,
   UserControlPath,
   StratDBPath,
-  DateViewPath, DBVendorLib,
+  DateViewPath, DBVendorLib,  DBLibraryName,
   DBUserName, DBPassword,DBSpecific,DBSQLDialectStr,DBCharSet,
   DataPath   : string;
 begin
@@ -1629,8 +1755,8 @@ begin
   DBPassword := 'masterkey';
   DBSQLDialectStr := '3';
   DBCharSet := 'UTF8';
-  //PublicPath := TPath.GetHomePath;
-  PublicPath := TPath.GetPublicPath;   // stay with PublicPath for compatibility with other database web software
+  PublicPath := TPath.GetHomePath;
+  //PublicPath := TPath.GetPublicPath;   // stay with PublicPath for compatibility with other database web software
   CommonFilePath := TPath.Combine(PublicPath,'EggSoft');
   IniFilePath := CommonFilePath;
   IniFilename := TPath.Combine(IniFilePath,'DVCheck.ini');
@@ -1644,8 +1770,12 @@ begin
     DBPassword := AppIni.ReadString('Parameters','Password','masterkey');
     DBSQLDialectStr := AppIni.ReadString('Parameters','SQLDialect','3');
     DBCharSet := AppIni.ReadString('Parameters','Charset','UTF8');
-    DBVendorLib := AppIni.ReadString('Parameters','VendorLib','c:\exe642\fbclient.dll');
+    DBVendorLib := AppIni.ReadString('Parameters','VendorLib','c:\exe64\fbclient.dll');
+    DBLibraryName := AppIni.ReadString('Parameters','LibraryName','c:\exe64\dbexpida41.dll');
     DBMonitor := AppIni.ReadString('Monitor','DBMonitor','inactive');
+    //ShowMessage(DBVendorLib);
+    //ShowMessage(DBLibraryName);
+
     //define connection parameters for StratDB connection
     dmStrat.sqlcStratDB.Connected := false;
     dmStrat.sqlcStratDB.Params.Clear;
@@ -1656,7 +1786,7 @@ begin
     dmStrat.sqlcStratDB.Params.Append('SQLDialect='+DBSQLDialectStr);
     dmStrat.sqlcStratDB.Params.Append('Charset='+DBCharSet);
     dmStrat.sqlcStratDB.Params.Append('VendorLib='+DBVendorLib);
-    dmStrat.sqlcStratDB.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    dmStrat.sqlcStratDB.Params.Append('Libraryname='+DBLibraryName);
     //dmStrat.sqlcStratDB.Params.Append('LocaleCode=0000');
     dmStrat.sqlcStratDB.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
     dmStrat.sqlcStratDB.Params.Append('UseUnicode=true');
@@ -1670,7 +1800,7 @@ begin
     dmDVC.sqlcDateView.Params.Append('SQLDialect='+DBSQLDialectStr);
     dmDVC.sqlcDateView.Params.Append('Charset='+DBCharSet);
     dmDVC.sqlcDateView.Params.Append('VendorLib='+DBVendorLib);
-    dmDVC.sqlcDateView.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    dmDVC.sqlcDateView.Params.Append('libraryname='+DBLibraryName);
     //dmDVC.sqlcDateView.Params.Append('LocaleCode=0000');
     dmDVC.sqlcDateView.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
     dmDVC.sqlcDateView.Params.Append('UseUnicode=true');
@@ -1678,13 +1808,13 @@ begin
     dmUser.sqlcUser.Connected := false;
     dmUser.sqlcUser.Params.Clear;
     dmUser.sqlcUser.Params.Append('DriverName='+DriverName);
-    dmUser.sqlcUser.Params.Append('Database='+StratDBPath);
+    dmUser.sqlcUser.Params.Append('Database='+UserControlPath);
     dmUser.sqlcUser.Params.Append('User_Name='+DBUserName);
     dmUser.sqlcUser.Params.Append('Password='+DBPassword);
     dmUser.sqlcUser.Params.Append('SQLDialect='+DBSQLDialectStr);
     dmUser.sqlcUser.Params.Append('Charset='+DBCharSet);
     dmUser.sqlcUser.Params.Append('VendorLib='+DBVendorLib);
-    dmUser.sqlcUser.Params.Append('libraryname=c:\exe64\dbexpida41.dll');
+    dmUser.sqlcUser.Params.Append('libraryname='+DBLibraryName);
     dmUser.sqlcUser.Params.Append('DevartFirebird TransIsolation=ReadCommitted');
     dmUser.sqlcUser.Params.Append('UseUnicode=true');
     if (DBMonitor = 'Active') then
@@ -2457,6 +2587,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2480,6 +2615,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2503,6 +2643,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2526,6 +2671,11 @@ var
 begin
   GDUfrom := 11000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2554,13 +2704,16 @@ var
   tRcnMdlID : string;
   tSpectrumType : string;
 begin
+  //ShowMessage('AgeProbabilities');
   StatusBar1.Panels[0].Text := ' ';
   StatusBar1.Panels[1].Text := ' ';
   StatusBar1.Panels[2].Text := ' ';
   StatusBar1.Panels[3].Text := ' ';
   StatusBar1.Refresh;
+  //ShowMessage('AgeProbabilities 1');
   dbnRecordIDs.DataSource := dmDVC.dsGDUs;
   dbgRecordIDs.DataSource := dmDVC.dsGDUs;
+  //ShowMessage('AgeProbabilities 2');
   iChecked := 0;
   iCorrected := 0;
   iFailed := 0;
@@ -2602,6 +2755,9 @@ begin
     11 : begin
       tSpectrumType := 'Calculating minimum igneous age per GDU';
     end;
+    15 : begin
+      tSpectrumType := 'Calculating igneous single zircon U-Pb age per GDU';
+    end;
     100 : begin
       tSpectrumType := 'Calculating VMS deposit age spectra per GDU';
     end;
@@ -2641,9 +2797,12 @@ begin
   if (Models_PalaeoPlates1.Checked) then tRcnMdlID := 'PalaeoPlat';
   if (Models_Global1.Checked) then tRcnMdlID := 'Global';
   if (GDU2500.Checked) then Steps := 2500;
-  if (GDU45.Checked) then Steps := 45;
+  if (GDU0180.Checked) then Steps := 180;
+  if (GDU0045.Checked) then Steps := 45;
   //ShowMessage('1');
   //query to get all ages for a specified GDU and interpretation
+  //
+  //below is a list of all feasible CurveOrder values and their meanings
   //CurveOrder in [0,1,2,3] i.e. not for detrital individual analyses
   //CurveOrder = 0 i.e. create empty records
   //CurveOrder = 1 i.e. for igneous interpreted summary ages
@@ -2651,7 +2810,7 @@ begin
   //CurveOrder = 3 i.e. for whole rock interpreted mantle extraction summary ages
   //CurveOrder = 4 i.e. for individual detrital zircon U-Pb ages
   //CurveOrder = 5 i.e. for individual detrital zircon mantle extraction ages
-  //CurveOrder = 6 i.e. for individual igneous zircon grain mantle extraction summary ages
+  //CurveOrder = 6 i.e. for individual igneous zircon grain mantle extraction ages
   //CurveOrder = 7 i.e. for igneous ages for LIPS - OR calculation to allow for replicate ages per LIP event
   //CurveOrder = 8 i.e. for cooling ages at intermediate closure temperature
   //CurveOrder = 9 i.e. for cooling ages at low closure temperature
@@ -2659,6 +2818,8 @@ begin
   //CurveOrder = 11 i.e. for minimum interpreted igneous age
   //CurveOrder = 12 i.e. for individual igneous zircon grain unmixing ages
   //CurveOrder = 13 i.e. for whole rock interpreted Sm-Nd unmixing ages
+  //CurveOrder = 14 i.e. for individual igneous zircon incubation ages
+  //CurveOrder = 15 i.e. for individual igneous zircon grain U-Pb ages
   //
   //CurveOrder = 100 i.e. for VMS deposits
   //CurveOrder = 101 i.e. for porphyry deposits
@@ -2672,15 +2833,16 @@ begin
   //CurveOrder = 109 i.e. for MVT deposits
   //CurveOrder = 110 i.e. for pegmatite deposits
   //
+  //ShowMessage('AgeProbabilities 3');
   if ((iCurveOrder >= 0) and (iCurveOrder < 12)) then
   begin
     dmDVC.cdsGDURECORDAGES.Close;
     dmDVC.qGDURECORDAGES.Close;
     dmDVC.qGDURECORDAGES.SQL.Clear;
-    dmDVC.qGDURECORDAGES.SQL.Add('select ISOGDU.RecordID,IsoGDU.RCNMDLID,IsoGDU.GDUID,');
+    dmDVC.qGDURECORDAGES.SQL.Add('select ISOGDU.RecordID,IsoGDU.RCNMDLID,CRATONGDUS.CRATGDUID AS GDUID,');
     dmDVC.qGDURECORDAGES.SQL.Add('  IsoRGR30.RAGE,ISORGR30.RAGEPERROR,ISORGR30.RAGEMERROR,');
     dmDVC.qGDURECORDAGES.SQL.Add('  ISORGR30.INTERPABR, ISORGR30.LITHOLOGY, LITHOL.LITHCLASSID');
-    dmDVC.qGDURECORDAGES.SQL.Add('from ISOGDU,ISORGR30,ISOFOR,USERSWHOFOR,LITHOL');
+    dmDVC.qGDURECORDAGES.SQL.Add('from ISOGDU,ISORGR30,ISOFOR,USERSWHOFOR,LITHOL,CRATONGDUS');
     if (iCurveOrder = 7) then
     begin
       dmDVC.qGDURECORDAGES.SQL.Add(', ISOLIP');
@@ -2691,7 +2853,9 @@ begin
     end;
     dmDVC.qGDURECORDAGES.SQL.Add('where ISORGR30.RECORDID = ISOGDU.RECORDID');
     dmDVC.qGDURECORDAGES.SQL.Add('and ISOGDU.RCNMDLID= :RcnMdlID');
-    dmDVC.qGDURECORDAGES.SQL.Add('and ISOGDU.GDUID = :GDUID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and CRATONGDUS.RCNMDLID= ISOGDU.RcnMdlID');
+    dmDVC.qGDURECORDAGES.SQL.Add('and ISOGDU.GDUID = CRATONGDUS.GDUID');
     dmDVC.qGDURECORDAGES.SQL.Add('and ISORGR30.RECORDID = ISOFOR.RECORDID');
     dmDVC.qGDURECORDAGES.SQL.Add('and ISOFOR.WHOFORID = USERSWHOFOR.WHOFORID');
     dmDVC.qGDURECORDAGES.SQL.Add('and USERSWHOFOR.USERID = :UserID');
@@ -2748,12 +2912,14 @@ begin
       end;
     end;
     if ((iCurveOrder = 4)) then // detrital U-Pb
-    //if (tCurveInterp = ValueForDetrital) then
     begin
       dmDVC.qGDURECORDAGES.SQL.Add('and (ISORGR30.INTERPABR = '+''''+'Detri'+''''+' or ISORGR30.InterpAbr = '+''''+'DetGI'+''''+')');
     end;
     dmDVC.qGDURECORDAGES.SQL.Add('order by ISORGR30.RECORDID');
   end;
+  if (iCurveOrder = 1) then dmUser.SetDeveloperData(dmDVC.qGDURecordAges.SQL.Text);
+
+  //ShowMessage('AgeProbabilities 4');
   //CurveOrder = 4 i.e. for detrital individual analyses
   //CurveOrder = 5 i.e. for crustal residence ages derived from detrital individual analyses
   if ((iCurveOrder = 4) or (iCurveOrder = 5)) then
@@ -2762,7 +2928,7 @@ begin
     dmDVC.qGDUSMPDATAAGES.Close;
     dmDVC.qGDUSMPDATAAGES.SQL.Clear;
     dmDVC.qGDUSMPDATAAGES.SQL.Add('select ');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_SMP_GDU.GDUID,');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('  CRATONGDUS.CRATGDUID as GDUID,');
     if (iCurveOrder = 4) then
     begin
       dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.Age_UPb_Ma as age, SMPDATAZR.Age_UPb_Err_Ma as ageerror');
@@ -2771,8 +2937,10 @@ begin
     begin
       dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.T2DM_Ma as age, SMPDATAZR.T2DM_Err_Ma as ageerror');
     end;
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.LithClassID = '+''''+'S'+'''');
@@ -2789,22 +2957,40 @@ begin
     //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR.SampleNo, SMPDATAZR.Frac');
   end;
   //CurveOrder = 6 i.e. for individual igneous zircon T2DM ages
-  if ((iCurveOrder = 6)) then
+  if ((iCurveOrder = 6) or (iCurveOrder = 15)) then
   begin
     dmDVC.cdsGDUSMPDATAAGES.Close;
     dmDVC.qGDUSMPDATAAGES.Close;
     dmDVC.qGDUSMPDATAAGES.SQL.Clear;
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('select ');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_SMP_GDU.GDUID,');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_IGN.T2DM_Ma as age, SMPDATAZR_IGN.T2DM_Err_Ma as ageerror');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR_IGN,SMPDATAZR_SMP_GDU');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR_IGN.SampleNo');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.ConcordClass <= 3');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.LithClassID = '+''''+'I'+'''');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma > 0.000');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma < 5000.000');
-    //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR_IGN.T2DM_Ma');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('select distinct');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('  CRATONGDUS.CRATGDUID AS GDUID,');
+    if ((iCurveOrder = 6)) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.T2DM_Ma as age, SMPDATAZR.T2DM_Err_Ma as ageerror');
+    end;
+    if ((iCurveOrder = 15)) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.Age_UPb_Ma as age, SMPDATAZR.Age_UPb_Err_Ma as ageerror');
+    end;
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.LithClassID = '+''''+'I'+'''');
+    if ((iCurveOrder = 6)) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma > 0.000');
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma < 5000.000');
+      //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR.T2DM_Ma');
+    end;
+    if ((iCurveOrder = 15)) then
+    begin
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.Age_UPb_Ma > 0.000');
+      dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.Age_UPb_Ma < 5000.000');
+      //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR.Age_UPb_Ma');
+    end;
   end;
   //CurveOrder = 7 i.e. for LIPS consortium LIPS age compilation
   if ((iCurveOrder = 7)) then
@@ -2812,15 +2998,18 @@ begin
     dmDVC.cdsGDULIPAGES.Close;
     dmDVC.qGDULIPAGES.Close;
     dmDVC.qGDULIPAGES.SQL.Clear;
-    dmDVC.qGDULIPAGES.SQL.Add('select LIPSRE.RECORDID, LIPSRE.SAMPLENO, LIPSRE.AGE, (LIPSRE.AGEPLUS95CONF+LIPSRE.AGEMINUS95CONF)/2.0 AS AgeError,');
-    dmDVC.qGDULIPAGES.SQL.Add('  LIPSRE.GDUID');
-    dmDVC.qGDULIPAGES.SQL.Add('from LIPSRE');
-    dmDVC.qGDULIPAGES.SQL.Add('where LIPSRE.GDUID = :GDUID');
-    dmDVC.qGDULIPAGES.SQL.Add('and LIPSRE.RCNMDLID = :RCNMDLID');
+    dmDVC.qGDULIPAGES.SQL.Add('select CRATONGDUS.CRATGDUID as GDUID, LIPSRE.RECORDID, LIPSRE.SAMPLENO, ');
+    dmDVC.qGDULIPAGES.SQL.Add('  LIPSRE.AGE, (LIPSRE.AGEPLUS95CONF+LIPSRE.AGEMINUS95CONF)/2.0 AS AgeError');
+    dmDVC.qGDULIPAGES.SQL.Add('from LIPSRE,CRATONGDUS');
+    dmDVC.qGDULIPAGES.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDULIPAGES.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDULIPAGES.SQL.Add('and LIPSRE.GDUID = CRATONGDUS.GDUID');
+    dmDVC.qGDULIPAGES.SQL.Add('and LIPSRE.RCNMDLID = CRATONGDUS.RCNMDLID');
     dmDVC.qGDULIPAGES.SQL.Add('and LIPSRE.AGE > 0.000');
     dmDVC.qGDULIPAGES.SQL.Add('and LIPSRE.AGE < 5000.000');
-    dmDVC.qGDULIPAGES.SQL.Add('order by LIPSRE.AGE');
+    //dmDVC.qGDULIPAGES.SQL.Add('order by CRATONGDUS.CRATGDUID,LIPSRE.AGE');
   end;
+  //dmUser.SetDeveloperData(dmDVC.qGDULIPAGES.SQL.Text);
   //CurveOrder = 12 i.e. for unmixing of individual igneous zircon U-Pb and T2DM ages
   if ((iCurveOrder = 12)) then
   begin
@@ -2829,17 +3018,72 @@ begin
     dmDVC.qGDUSMPDATAAGES.SQL.Clear;
     dmDVC.qGDUSMPDATAAGES.SQL.Add('select ');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_SMP_GDU.GDUID,');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR_IGN.T2DM_Ma as age, SMPDATAZR_IGN.T2DM_Err_Ma as ageerror,');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('  CRATONGDUS.CRATGDUID AS GDUID,');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.T2DM_Ma as age, SMPDATAZR.T2DM_Err_Ma as ageerror,');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.T2DM_Ma AS T2DM, SMPDATAZR.T2DM_ERR_Ma as T2DMERROR,');
     dmDVC.qGDUSMPDATAAGES.SQL.Add('  SMPDATAZR.Age_UPb_Ma+2.0*(SMPDATAZR.T2DM_Ma-SMPDATAZR.Age_UPb_Ma) as T2');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR_IGN,SMPDATAZR_SMP_GDU');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('where SMPDATAZR_SMP_GDU.GDUID = :GDUID');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR_IGN.SampleNo');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.ConcordClass <= 3');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.LithClassID = '+''''+'I'+'''');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma > 0.000');
-    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_IGN.T2DM_Ma < 5000.000');
-    //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR_IGN.T2DM_Ma');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.LithClassID = '+''''+'I'+'''');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma > 0.000');
+    dmDVC.qGDUSMPDATAAGES.SQL.Add('and SMPDATAZR.T2DM_Ma < 5000.000');
+    //dmDVC.qGDUSMPDATAAGES.SQL.Add('order by SMPDATAZR.T2DM_Ma');
+  end;
+  //CurveOrder = 13 i.e. for individual igneous zircon T2DM ages
+  if ((iCurveOrder = 13)) then
+  begin
+    dmDVC.cdsGDUSMPDATAINCUBATION.Close;
+    dmDVC.qGDUSMPDATAINCUBATION.Close;
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Clear;
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('select ');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  CRATONGDUS.CRATGDUID AS GDUID,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.age_upb_ma as AGE, SMPDATAZR.age_upb_err_ma as AGEERROR,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.T2DM_Ma as T2DM, SMPDATAZR.T2DM_Err_Ma as T2DMERROR,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.AGE_INCUBATION');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.LithClassID = :LITHCLASSID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_upb_ma > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_upb_ma < 5000.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.T2DM_Ma > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.T2DM_Ma < 5000.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_incubation > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_incubation < 5000.000');
+    //dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('order by SMPDATAZR.Age_Incubation');
+  end;
+  //CurveOrder = 14 i.e. for individual detrital zircon T2DM ages
+  if ((iCurveOrder = 14)) then
+  begin
+    dmDVC.cdsGDUSMPDATAINCUBATION.Close;
+    dmDVC.qGDUSMPDATAINCUBATION.Close;
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Clear;
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('select ');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  CRATONGDUS.CRATGDUID AS GDUID,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.age_upb_ma as AGE, SMPDATAZR.age_upb_err_ma as AGEERROR,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.T2DM_Ma as T2DM, SMPDATAZR.T2DM_Err_Ma as T2DMERROR,');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('  SMPDATAZR.AGE_INCUBATION');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.ConcordClass <= 3');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.LithClassID = :LITHCLASSID');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_upb_ma > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_upb_ma < 5000.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.T2DM_Ma > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.T2DM_Ma < 5000.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_incubation > 0.000');
+    dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('and SMPDATAZR.age_incubation < 5000.000');
+    //dmDVC.qGDUSMPDATAINCUBATION.SQL.Add('order by SMPDATAZR.Age_Incubation');
   end;
   //query to insert probability values into database
   dmDVC.qNew.SQL.Clear;
@@ -2848,7 +3092,7 @@ begin
   //dmDVC.qNew.SQL.Add('VALUES (:RCNMDLID, :Steps, :GDUID, :CURVEORDER, :PDFORDER, :AGE, :PDFVALUE, :CURVEINTERP )');
   dmDVC.qNew.SQL.Add('(RCNMDLID, STEPS, GDUID, CURVEORDER, PDFORDER, AGE, PDFVALUE, CURVEINTERP, CUMULATIVEVALUE )');
   dmDVC.qNew.SQL.Add('VALUES (:RCNMDLID, :Steps, :GDUID, :CURVEORDER, :PDFORDER, :AGE, :PDFVALUE, :CURVEINTERP, :CUMULATIVEVALUE )');
-  dmUser.SetDeveloperData(dmDVC.qNew.SQL.Text);
+  //dmUser.SetDeveloperData(dmDVC.qNew.SQL.Text);
   //query to delete existing probability values from database for specified reconstruction model and GDU
   dmDVC.qDelete.SQL.Clear;
   dmDVC.qDelete.SQL.Add('DELETE FROM GDUSPDF');
@@ -2869,13 +3113,23 @@ begin
     dmDVC.qUpdate.SQL.Add('    GDUS.COUNTMETAMORPHIC = :CountRecords,');
     dmDVC.qUpdate.SQL.Add('    GDUS.COUNTDETRITAL = :CountRecords,');
     dmDVC.qUpdate.SQL.Add('    GDUS.COUNTDETRITALCRSRS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTIGN1ZR = :CountRecords,');
     dmDVC.qUpdate.SQL.Add('    GDUS.COUNTIGNZR2DM = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTLIPS = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTCOOLI = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTCOOLL = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.COUNTCOOLV = :CountRecords,');
     dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGNEOUSAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.MAXMETAMORPHICAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.MAXCRUSTALRESAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALAGE = :MaxAge,');
-    dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALCRSRSAGE = :MaxAge,');
-    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGNZR2DMAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXDETRITALCRSRS = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGN1ZRAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGNZR2DM = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXLIPAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLIAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLLAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLVAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
   end;
   if (iCurveOrder = 1) then
@@ -2920,10 +3174,34 @@ begin
     dmDVC.qUpdate.SQL.Add('    GDUS.MAXLIPAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
   end;
+  if (iCurveOrder = 8) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTCOOLI = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLIAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (iCurveOrder = 9) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTCOOLL = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLLAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (iCurveOrder = 10) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTCOOLV = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXCOOLVAGE = :MaxAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
   if (iCurveOrder = 11) then
   begin
     dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTIGNEOUS = :CountRecords,');
     dmDVC.qUpdate.SQL.Add('    GDUS.MINIGNEOUSAGE = :MinAge,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
+  end;
+  if (iCurveOrder = 15) then
+  begin
+    dmDVC.qUpdate.SQL.Add('SET GDUS.COUNTIGN1ZR = :CountRecords,');
+    dmDVC.qUpdate.SQL.Add('    GDUS.MAXIGN1ZRAGE = :MaxAge,');
     dmDVC.qUpdate.SQL.Add('    GDUS.DateUpdated = :DateUpdated');
   end;
   dmDVC.qUpdate.SQL.Add('where GDUS.GDUID = :GDUID');
@@ -2943,7 +3221,16 @@ begin
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and depositfor.whoforid=userswhofor.whoforid');
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and userswhofor.userid=:UserID');
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and depositGDU.RCNMDLID= :RcnMdlID');
-    dmStrat.qGDUDEPOSITAGES.SQL.Add('and depositGDU.GDUID = :GDUID');
+    if ((GDUFrom >= 10000) and (GDUTo < 20000)) then
+    begin
+      dmStrat.qGDUDEPOSITAGES.SQL.Add('and depositGDU.GDUID = :GDUID');
+    end;
+    if ((GDUFrom >= 20000) and (GDUTo < 30000)) then
+    begin
+      dmStrat.qGDUDEPOSITAGES.SQL.Add('where CRATONGDUS.CRATGDUID = :GDUID');
+      dmStrat.qGDUDEPOSITAGES.SQL.Add('and CRATONGDUS.RCNMDLID= :RcnMdlID');
+      dmStrat.qGDUDEPOSITAGES.SQL.Add('and depositGDU.GDUID = CRATONGDUS.GDUID');
+    end;
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and deposits.approxage > 0.0');
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and deposits.approxage < 5000.0');
     dmStrat.qGDUDEPOSITAGES.SQL.Add('and deposits.depositclanid=depositclans.depositclanid');
@@ -3006,6 +3293,16 @@ begin
   tMaxAge := 0.0;
   //ShowMessage('2'+tRcnMdlID);
 
+  //if (iCurveOrder in [1,2,3,8,9,10]) then
+  //begin
+  //  dmUser.SetDeveloperData(dmDVC.qGDURECORDAGES.SQL.Text);
+  //end;
+  //if (iCurveOrder in [4,5,6,15]) then
+  //begin
+  //  Application.ProcessMessages;
+  //  dmUser.SetDeveloperData(dmDVC.qGDURECORDAGES.SQL.Text);
+  //  dmUser.SetDeveloperData(dmDVC.qGDUSMPDATAAGES.SQL.Text);
+  //end;
   if (tCurveInterp = ValueForEmptyRecords) then
   begin
     StatusBar1.Panels[4].Text := 'Emptying age spectra';
@@ -3018,8 +3315,9 @@ begin
       StatusBar1.Refresh;
       Application.ProcessMessages;
       WasSuccessful := true;
+      //dmUser.SetDeveloperData('GDUID is '+IntToStr(iGDUID)+'***'+tCurveInterp);
       try
-        if ((iCurveOrder < 7) or (iCurveOrder = 8) or (iCurveOrder = 9) or (iCurveOrder = 10)) then
+        if ((iCurveOrder < 7) or (iCurveOrder = 8) or (iCurveOrder = 9) or (iCurveOrder = 10) or (iCurveOrder = 15)) then
         begin
           dmDVC.CalculateGDUPDFS(tRcnMdlID,Steps,iGDUID,iCurveOrder,tCurveInterp,'And',iCountRecords,tMaxAge,WasSuccessful);
         end;
@@ -3058,6 +3356,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3083,13 +3386,25 @@ begin
   iCurveOrder := 5;
   tCurveInterp := ValueForDetrital;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
+  iCurveOrder := 15;
+  tCurveInterp := ValueForIgneous1ZrUPb;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
   iCurveOrder := 6;
   //tCurveInterp := ValueForApproachIDT2DM;
-  tCurveInterp := ValueForIgneousZr2DM;
+  tCurveInterp := ValueForIgneous1Zr2DM;
   AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
   iCurveOrder := 7;
   tCurveInterp := ValueForLIPS;
   AgeProbabilities(iCurveOrder,tCurveInterp,'Or',GDUfrom,GDUto);
+  iCurveOrder := 8;
+  tCurveInterp := ValueForCoolIntermediate;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
+  iCurveOrder := 9;
+  tCurveInterp := ValueForCoolLow;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
+  iCurveOrder := 10;
+  tCurveInterp := ValueForCoolVeryLow;
+  AgeProbabilities(iCurveOrder,tCurveInterp,'And',GDUfrom,GDUto);
 end;
 
 procedure TDVCmain.Deleteunlinkedunits1Click(Sender: TObject);
@@ -3199,6 +3514,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3222,6 +3542,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3581,6 +3906,11 @@ var
 begin
   GDUfrom := 10000;
   GDUto := 19999;
+  if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3715,6 +4045,13 @@ begin
   StatusBar1.Panels[3].Text := '';
   StatusBar1.Panels[4].Text := 'Completed MaxAge references';
   StatusBar1.Refresh;
+end;
+
+procedure TDVCmain.GDU0180Click(Sender: TObject);
+begin
+  GDU0045.Checked := false;
+  GDU0180.Checked := true;
+  GDU2500.Checked := false;
 end;
 
 end.

@@ -1,68 +1,91 @@
 object DVCmain: TDVCmain
   Left = 1
   Top = 1
+  Margins.Left = 4
+  Margins.Top = 4
+  Margins.Right = 4
+  Margins.Bottom = 4
   Caption = 
     'DVCheck - check for and correct missing records in the DateView ' +
     'database'
-  ClientHeight = 681
-  ClientWidth = 944
+  ClientHeight = 851
+  ClientWidth = 1180
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -14
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Menu = MainMenu1
   Position = poDesigned
+  OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 13
+  PixelsPerInch = 120
+  TextHeight = 16
   object Splitter1: TSplitter
     Left = 0
-    Top = 445
-    Width = 8
-    Height = 217
+    Top = 556
+    Width = 10
+    Height = 272
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Beveled = True
-    ExplicitHeight = 138
+    MinSize = 38
   end
   object Splitter3: TSplitter
     Left = 0
-    Top = 437
-    Width = 944
-    Height = 8
+    Top = 546
+    Width = 1180
+    Height = 10
     Cursor = crVSplit
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Align = alTop
     Beveled = True
+    MinSize = 38
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 662
-    Width = 944
-    Height = 19
+    Top = 828
+    Width = 1180
+    Height = 23
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Panels = <
       item
-        Width = 100
+        Width = 125
       end
       item
-        Width = 100
+        Width = 125
       end
       item
-        Width = 100
+        Width = 125
       end
       item
-        Width = 50
+        Width = 63
       end
       item
-        Width = 400
+        Width = 500
       end
       item
-        Width = 50
+        Width = 63
       end>
   end
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 944
-    Height = 437
+    Width = 1180
+    Height = 546
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Align = alTop
     BevelInner = bvRaised
     BevelOuter = bvLowered
@@ -70,57 +93,84 @@ object DVCmain: TDVCmain
     object Panel1: TPanel
       Left = 2
       Top = 2
-      Width = 117
-      Height = 433
+      Width = 146
+      Height = 542
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Align = alLeft
       BevelInner = bvRaised
       BevelOuter = bvLowered
       TabOrder = 0
       object dbgRecordIDs: TDBGrid
         Left = 2
-        Top = 21
-        Width = 113
-        Height = 410
+        Top = 25
+        Width = 142
+        Height = 515
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Align = alClient
         TabOrder = 0
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
-        TitleFont.Height = -11
+        TitleFont.Height = -14
         TitleFont.Name = 'MS Sans Serif'
         TitleFont.Style = []
       end
       object dbnRecordIDs: TDBNavigator
         Left = 2
         Top = 2
-        Width = 113
-        Height = 19
+        Width = 142
+        Height = 23
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbDelete]
         Align = alTop
         TabOrder = 1
       end
     end
     object Panel2: TPanel
-      Left = 119
+      Left = 148
       Top = 2
-      Width = 823
-      Height = 433
+      Width = 1030
+      Height = 542
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Align = alClient
       BevelInner = bvRaised
       BevelOuter = bvLowered
       TabOrder = 1
       object Splitter2: TSplitter
-        Left = 491
+        Left = 613
         Top = 2
-        Width = 8
-        Height = 429
+        Width = 10
+        Height = 538
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Beveled = True
-        ExplicitLeft = 521
+        MinSize = 38
+        ExplicitLeft = 614
+        ExplicitTop = 3
+        ExplicitHeight = 536
       end
       object Panel3: TPanel
         Left = 2
         Top = 2
-        Width = 489
-        Height = 429
+        Width = 611
+        Height = 538
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Align = alLeft
         BevelInner = bvRaised
         BevelOuter = bvLowered
@@ -128,30 +178,42 @@ object DVCmain: TDVCmain
         object dbn2: TDBNavigator
           Left = 2
           Top = 2
-          Width = 485
-          Height = 25
+          Width = 607
+          Height = 31
+          Margins.Left = 4
+          Margins.Top = 4
+          Margins.Right = 4
+          Margins.Bottom = 4
           Align = alTop
           TabOrder = 0
         end
         object dbg2: TDBGrid
           Left = 2
-          Top = 27
-          Width = 485
-          Height = 400
+          Top = 33
+          Width = 607
+          Height = 503
+          Margins.Left = 4
+          Margins.Top = 4
+          Margins.Right = 4
+          Margins.Bottom = 4
           Align = alClient
           TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
-          TitleFont.Height = -11
+          TitleFont.Height = -14
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
         end
       end
       object Panel4: TPanel
-        Left = 499
+        Left = 623
         Top = 2
-        Width = 322
-        Height = 429
+        Width = 405
+        Height = 538
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Align = alClient
         BevelInner = bvRaised
         BevelOuter = bvLowered
@@ -159,21 +221,29 @@ object DVCmain: TDVCmain
         object dbn3: TDBNavigator
           Left = 2
           Top = 2
-          Width = 318
-          Height = 25
+          Width = 401
+          Height = 31
+          Margins.Left = 4
+          Margins.Top = 4
+          Margins.Right = 4
+          Margins.Bottom = 4
           Align = alTop
           TabOrder = 0
         end
         object dbg3: TDBGrid
           Left = 2
-          Top = 27
-          Width = 318
-          Height = 400
+          Top = 33
+          Width = 401
+          Height = 503
+          Margins.Left = 4
+          Margins.Top = 4
+          Margins.Right = 4
+          Margins.Bottom = 4
           Align = alClient
           TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
-          TitleFont.Height = -11
+          TitleFont.Height = -14
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
         end
@@ -181,27 +251,42 @@ object DVCmain: TDVCmain
     end
   end
   object Panel6: TPanel
-    Left = 8
-    Top = 445
-    Width = 936
-    Height = 217
+    Left = 10
+    Top = 556
+    Width = 1170
+    Height = 272
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Align = alClient
     BevelInner = bvRaised
     BevelOuter = bvLowered
     TabOrder = 2
     object Splitter4: TSplitter
-      Left = 473
+      Left = 590
       Top = 2
-      Width = 8
-      Height = 213
+      Width = 10
+      Height = 268
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Beveled = True
-      ExplicitHeight = 134
+      MinSize = 38
+      ExplicitLeft = 591
+      ExplicitTop = 3
+      ExplicitHeight = 266
     end
     object Panel7: TPanel
       Left = 2
       Top = 2
-      Width = 471
-      Height = 213
+      Width = 588
+      Height = 268
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Align = alLeft
       BevelInner = bvRaised
       BevelOuter = bvLowered
@@ -209,8 +294,12 @@ object DVCmain: TDVCmain
       object Memo1: TMemo
         Left = 2
         Top = 2
-        Width = 467
-        Height = 209
+        Width = 584
+        Height = 264
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Align = alClient
         Lines.Strings = (
           '')
@@ -218,10 +307,14 @@ object DVCmain: TDVCmain
       end
     end
     object Panel8: TPanel
-      Left = 481
+      Left = 600
       Top = 2
-      Width = 453
-      Height = 213
+      Width = 568
+      Height = 268
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Align = alClient
       BevelInner = bvRaised
       BevelOuter = bvLowered
@@ -229,8 +322,12 @@ object DVCmain: TDVCmain
       object Memo2: TMemo
         Left = 2
         Top = 2
-        Width = 449
-        Height = 209
+        Width = 564
+        Height = 264
+        Margins.Left = 4
+        Margins.Top = 4
+        Margins.Right = 4
+        Margins.Bottom = 4
         Align = alClient
         TabOrder = 0
       end
@@ -404,15 +501,19 @@ object DVCmain: TDVCmain
         OnClick = CrustalResidenceAges1Click
       end
       object DetritalAges1: TMenuItem
-        Caption = 'Detrital ages'
+        Caption = 'Detrital 1 zr UPb ages'
         OnClick = DetritalAges1Click
       end
       object DetritalResidenceAges1: TMenuItem
-        Caption = 'Detrital residence ages'
+        Caption = 'Detrital 1 zr residence ages'
         OnClick = DetritalResidenceAges1Click
       end
+      object GDUzrUPb: TMenuItem
+        Caption = 'Igneous 1 zr UPb ages'
+        OnClick = GDUzrUPbClick
+      end
       object GDUzr2DM: TMenuItem
-        Caption = 'Igneous zr 2DM'
+        Caption = 'Igneous 1 zr 2DM'
         OnClick = GDUzr2DMClick
       end
       object GDULIPS: TMenuItem
@@ -445,9 +546,17 @@ object DVCmain: TDVCmain
         Checked = True
         OnClick = GDU2500Click
       end
-      object GDU45: TMenuItem
+      object GDU0180: TMenuItem
+        Caption = 'Steps = 180'
+        OnClick = GDU0180Click
+      end
+      object GDU0045: TMenuItem
         Caption = 'Steps = 45'
-        OnClick = GDU45Click
+        OnClick = GDU0045Click
+      end
+      object GDUCratons1: TMenuItem
+        Caption = 'Cratons'
+        OnClick = GDUCratons1Click
       end
       object GDUDepositVMS: TMenuItem
         Caption = 'Deposits - VMS'

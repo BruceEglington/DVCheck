@@ -3,7 +3,7 @@ unit DVC_dm;
 interface
 
 uses
-  Windows,
+  Windows, Messages,
   System.SysUtils, System.Classes,
   Data.DBXCommon, Dialogs,
   DB, Data.SqlExpr, Data.FMTBcd, DataSnap.DBClient, DataSnap.Provider,
@@ -636,6 +636,16 @@ type
     FloatField6: TFloatField;
     FloatField7: TFloatField;
     dsGDUSmpdataT1T2Ages: TDataSource;
+    qGDUSmpdataIncubation: TSQLQuery;
+    dspGDUSmpdataIncubation: TDataSetProvider;
+    cdsGDUSmpdataIncubation: TClientDataSet;
+    dsGDUSmpdataIncubation: TDataSource;
+    cdsGDUSmpdataIncubationGDUID: TFMTBCDField;
+    cdsGDUSmpdataIncubationAGE: TFloatField;
+    cdsGDUSmpdataIncubationAGEERROR: TFloatField;
+    cdsGDUSmpdataIncubationT2DM: TFloatField;
+    cdsGDUSmpdataIncubationT2DMERROR: TFloatField;
+    cdsGDUSmpdataIncubationAGE_INCUBATION: TFloatField;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
@@ -914,8 +924,10 @@ begin
   //from DateView summary records
   //ShowMessage('3'+tRcnMdlID);
   //ShowMessage(dmDVC.qGDURecordAges.SQL.Text);
-  if (iCurveOrder < 100) then
+  if ((iCurveOrder < 100) and (iCurveOrder <> 4) and (iCurveOrder <> 5) and (iCurveOrder <> 6) and (iCurveOrder <> 15)) then
   begin
+    //dmUser.SetDeveloperData('in Calc procedure iCurveOrder = '+IntToStr(iCurveOrder));
+    //dmUser.SetDeveloperData(dmDVC.qGDURecordAges.SQL.Text);
     dmDVC.cdsGDURECORDAGES.Close;
     dmDVC.qGDURECORDAGES.Close;
     dmDVC.qGDURecordAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
@@ -959,11 +971,18 @@ begin
   CountRecords := 0;
   tempmax := 0.0;
   MaxAge := 0.0;
-  if (iCurveOrder > 0) then
+  if ((iCurveOrder > 0)) then
   begin
     //ShowMessage('3');
+    //dmUser.SetDeveloperData('Location 3 iCurveOder > 0');
     MinimumUncertainty := 5.0;
-    if (iCurveOrder = 3) then MinimumUncertainty := 20.0;
+    if (Steps = 2500) then MinimumUncertainty := 5.0;
+    if (Steps = 180) then MinimumUncertainty := 10.0;
+    if (Steps = 45) then MinimumUncertainty := 25.0;
+
+    if ((iCurveOrder = 3) and (Steps = 2500)) then MinimumUncertainty := 20.0;
+    if ((iCurveOrder = 3) and (Steps = 180)) then MinimumUncertainty := 30.0;
+    if ((iCurveOrder = 3) and (Steps = 45)) then MinimumUncertainty := 50.0;
     if (iCurveOrder <= 3) then
     begin
       //ShowMessage('4');
@@ -1012,12 +1031,14 @@ begin
     if (iCurveOrder = 4) then
     begin
       //ShowMessage('5');
-      MinimumUncertainty := 15.0;
+      if (Steps = 2500) then MinimumUncertainty := 15.0;
+      if (Steps = 180) then MinimumUncertainty := 20.0;
+      if (Steps = 45) then MinimumUncertainty := 40.0;
       dmDVC.cdsGDUSMPDATAAGES.Close;
       dmDVC.qGDUSMPDATAAGES.Close;
       //dmUser.SetDeveloperData('iCurveOrder=4');
       //dmUser.SetDeveloperData(dmDVC.qGDUSMPDATAAGES.SQL.Text);
-      //dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
       dmDVC.qGDUSmpdataAges.ParamByName('GDUID').AsInteger := iGDUID;
       dmDVC.cdsGDUSmpdataAges.Open;
       dmDVC.cdsGDUSmpdataAges.First;
@@ -1072,10 +1093,12 @@ begin
     if (iCurveOrder = 5) then
     begin
       //ShowMessage('5');
-      MinimumUncertainty := 20.0;
+      if (Steps = 2500) then MinimumUncertainty := 20.0;
+      if (Steps = 180) then MinimumUncertainty := 30.0;
+      if (Steps = 45) then MinimumUncertainty := 50.0;
       dmDVC.cdsGDUSMPDATAAGES.Close;
       dmDVC.qGDUSMPDATAAGES.Close;
-      //dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
       dmDVC.qGDUSmpdataAges.ParamByName('GDUID').AsInteger := iGDUID;
       dmDVC.cdsGDUSmpdataAges.Open;
       dmDVC.cdsGDUSmpdataAges.First;
@@ -1120,53 +1143,15 @@ begin
         dmDVC.cdsGDUSmpdataAges.EnableControls;
       end;
     end;
-    if (iCurveOrder = 6) then
+    if (iCurveOrder = 15) then
     begin
       //ShowMessage('6');
-      MinimumUncertainty := 20.0;
-      if (dmDVC.cdsGDURecordAges.RecordCount > 0) then
-      begin
-        dmDVC.cdsGDURecordAges.DisableControls;
-        repeat
-          try
-            j := j + 1;
-            tx := dmDVC.cdsGDURecordAgesRAGE.AsFloat;
-            if ((tx > 0.0) and (tx < 5000.0) and (tx > MaxAge)) then MaxAge := tx;
-            txp := dmDVC.cdsGDURecordAgesRAGEPERROR.AsFloat;
-            txm := dmDVC.cdsGDURecordAgesRAGEMERROR.AsFloat;
-            tx1 := (txp+txm)/2.0;   //need to make this equally distributed about the age
-            tx1 := tx1/1.96;   //convert to 1 sigma from original 95% confidence
-            if (tx1 < MinimumUncertainty) then tx1 := MinimumUncertainty;
-            if ((tx > 0.0) and (tx1 > 0.0)) then
-            begin
-              for k := 0 to Steps do
-              begin
-                X1 := Spectrum2d[k,0];
-                tempGauss := Gauss(X1,tx,tx1);
-                if (AndOr = 'And') then
-                begin
-                  Spectrum2d[k,1] := Spectrum2d[k,1] + tempGauss;
-                end else
-                begin
-                  if (tempGauss > Spectrum2d[k,1]) then
-                  begin
-                    Spectrum2d[k,1] := tempGauss;
-                  end else
-                  begin
-                    Spectrum2d[k,1] := Spectrum2d[k,1];
-                  end;
-                end;
-              end;
-            end;
-          finally
-            dmDVC.cdsGDURecordAges.Next;
-          end;
-        until dmDVC.cdsGDURecordAges.EOF;
-        dmDVC.cdsGDURecordAges.EnableControls;
-      end;
+      if (Steps = 2500) then MinimumUncertainty := 20.0;
+      if (Steps = 180) then MinimumUncertainty := 30.0;
+      if (Steps = 45) then MinimumUncertainty := 50.0;
       dmDVC.cdsGDUSMPDATAAGES.Close;
       dmDVC.qGDUSMPDATAAGES.Close;
-      //dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
       dmDVC.qGDUSmpdataAges.ParamByName('GDUID').AsInteger := iGDUID;
       //ShowMessage('6a');
       //ShowMessage(dmDVC.qGDUSmpdataAges.SQL.Text);
@@ -1226,13 +1211,132 @@ begin
       except
       end;
     end;
+    if (iCurveOrder = 6) then
+    begin
+      //ShowMessage('6 iCurveOrder');
+      //dmUser.SetDeveloperData('in data module');
+      //dmUser.SetDeveloperData(dmDVC.qGDUSmpDataAges.sql.Text);
+      MinimumUncertainty := 20.0;
+      if (Steps = 2500) then MinimumUncertainty := 20.0;
+      if (Steps = 180) then MinimumUncertainty := 30.0;
+      if (Steps = 45) then MinimumUncertainty := 50.0;
+      //ShowMessage('cdsGDURecordAges.RecordCount = '+IntToStr(dmDVC.cdsGDURecordAges.RecordCount));
+      //Application.ProcessMessages;
+      {
+      if (dmDVC.cdsGDURecordAges.RecordCount > 0) then
+      begin
+        //dmDVC.cdsGDURecordAges.DisableControls;
+        repeat
+          //try
+            j := j + 1;
+            tx := dmDVC.cdsGDURecordAgesRAGE.AsFloat;
+            if ((tx > 0.0) and (tx < 5000.0) and (tx > MaxAge)) then MaxAge := tx;
+            txp := dmDVC.cdsGDURecordAgesRAGEPERROR.AsFloat;
+            txm := dmDVC.cdsGDURecordAgesRAGEMERROR.AsFloat;
+            tx1 := (txp+txm)/2.0;   //need to make this equally distributed about the age
+            tx1 := tx1/1.96;   //convert to 1 sigma from original 95% confidence
+            if (tx1 < MinimumUncertainty) then tx1 := MinimumUncertainty;
+            if ((tx > 0.0) and (tx1 > 0.0)) then
+            begin
+              for k := 0 to Steps do
+              begin
+                X1 := Spectrum2d[k,0];
+                tempGauss := Gauss(X1,tx,tx1);
+                if (AndOr = 'And') then
+                begin
+                  Spectrum2d[k,1] := Spectrum2d[k,1] + tempGauss;
+                end else
+                begin
+                  if (tempGauss > Spectrum2d[k,1]) then
+                  begin
+                    Spectrum2d[k,1] := tempGauss;
+                  end else
+                  begin
+                    Spectrum2d[k,1] := Spectrum2d[k,1];
+                  end;
+                end;
+              end;
+            end;
+          //finally
+            dmDVC.cdsGDURecordAges.Next;
+          //end;
+        until dmDVC.cdsGDURecordAges.EOF;
+        //dmDVC.cdsGDURecordAges.EnableControls;
+      end;
+      }
+      dmDVC.cdsGDUSMPDATAAGES.Close;
+      dmDVC.qGDUSMPDATAAGES.Close;
+      dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDUSmpdataAges.ParamByName('GDUID').AsInteger := iGDUID;
+      //ShowMessage('6a');
+      //ShowMessage(dmDVC.qGDUSmpdataAges.SQL.Text);
+      try
+        dmDVC.cdsGDUSmpdataAges.Open;
+        //ShowMessage('6b');
+        iRecordCount := dmDVC.cdsGDUSmpdataAges.RecordCount;
+        //ShowMessage('6c');
+        dmDVC.cdsGDUSmpdataAges.First;
+        //ShowMessage('6d');
+        if (iRecordCount > 0) then
+        begin
+          //ShowMessage('6e');
+          //dmDVC.cdsGDUSmpdataAges.DisableControls;
+          repeat
+            try
+              j := j + 1;
+              //ShowMessage('j = '+IntToStr(j));
+              try
+                tx := dmDVC.cdsGDUSmpdataAgesAGE.AsFloat;
+                if ((tx > 0.0) and (tx < 5000.0) and (tx > MaxAge)) then MaxAge := tx;
+                txp := dmDVC.cdsGDUSmpdataAgesAGEERROR.AsFloat;
+                txm := dmDVC.cdsGDUSmpdataAgesAGEERROR.AsFloat;
+                tx1 := (txp+txm)/2.0;   //need to make this equally distributed about the age
+                tx1 := tx1;   //convert to 1 sigma from original 95% confidence
+                if (tx1 < MinimumUncertainty) then tx1 := MinimumUncertainty;
+                if ((tx > 0.0) and (tx1 > 0.0)) then
+                begin
+                  for k := 0 to Steps do
+                  begin
+                    X1 := Spectrum2d[k,0];
+                    tempGauss := Gauss(X1,tx,tx1);
+                    if (AndOr = 'And') then
+                    begin
+                      Spectrum2d[k,1] := Spectrum2d[k,1] + tempGauss;
+                    end else
+                    begin
+                      if (tempGauss > Spectrum2d[k,1]) then
+                      begin
+                        Spectrum2d[k,1] := tempGauss;
+                      end else
+                      begin
+                        Spectrum2d[k,1] := Spectrum2d[k,1];
+                      end;
+                    end;
+                  end;
+                end;
+              except
+                j := j - 1;
+              end;
+            finally
+              dmDVC.cdsGDUSmpdataAges.Next;
+            end;
+          until dmDVC.cdsGDUSmpdataAges.EOF;
+          //dmDVC.cdsGDUSmpdataAges.EnableControls;
+        end;
+      except
+      end;
+    end;
     if (iCurveOrder = 7) then
     begin
       //ShowMessage('6');
-      MinimumUncertainty := 1.0;
+      //dmUser.SetDeveloperData('Location 6 iCurveOrder = 7');
+      if (Steps = 2500) then MinimumUncertainty := 1.0;
+      if (Steps = 180) then MinimumUncertainty := 5.0;
+      if (Steps = 45) then MinimumUncertainty := 25.0;
+      //dmUser.SetDeveloperData('cdsGDURecordAges RecordCount = '+IntToStr(dmDVC.cdsGDURecordAges.RecordCount));
       if (dmDVC.cdsGDURecordAges.RecordCount > 0) then
       begin
-        dmDVC.cdsGDURecordAges.DisableControls;
+        //dmDVC.cdsGDURecordAges.DisableControls;
         repeat
           try
             j := j + 1;
@@ -1268,19 +1372,22 @@ begin
             dmDVC.cdsGDURecordAges.Next;
           end;
         until dmDVC.cdsGDURecordAges.EOF;
-        dmDVC.cdsGDURecordAges.EnableControls;
+        //until dmDVC.cdsGDURecordAgesGDUID.AsInteger > 21300;
+        //dmDVC.cdsGDURecordAges.EnableControls;
       end;
-      dmDVC.cdsGDULIPaGES.Close;
-      dmDVC.qGDULIPAGES.Close;
-      //dmDVC.qGDUSmpdataAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
-      dmDVC.qGDULIPAges.ParamByName('GDUID').AsInteger := iGDUID;
-      dmDVC.qGDULIPAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDURecordAges.ParamByName('GDUID').AsInteger := iGDUID;
+      dmDVC.qGDURecordAges.ParamByName('RCNMDLID').AsString := tRcnMdlID;
       //ShowMessage('6a');
       //ShowMessage(dmDVC.qGDUSmpdataAges.SQL.Text);
+      dmDVC.cdsGDULIPages.Close;
+      dmDVC.qGDULIPages.Close;
+      dmDVC.qGDULIPages.ParamByName('RCNMDLID').AsString := tRcnMdlID;
+      dmDVC.qGDULIPages.ParamByName('GDUID').AsInteger := iGDUID;
       try
         dmDVC.cdsGDULIPages.Open;
         //ShowMessage('6b');
         iRecordCount := dmDVC.cdsGDULIPages.RecordCount;
+        //dmUser.SetDeveloperData('cdsGDULIPages RecordCount = '+IntToStr(dmDVC.cdsGDULIPages.RecordCount));
         //ShowMessage('6c');
         dmDVC.cdsGDULIPages.First;
         //ShowMessage('6d');
@@ -1336,7 +1443,9 @@ begin
     if ((iCurveOrder >= 8) and (iCurveOrder <= 10)) then
     begin
       //ShowMessage('8');
-      MinimumUncertainty := 10.0;
+      if (Steps = 2500) then MinimumUncertainty := 10.0;
+      if (Steps = 180) then MinimumUncertainty := 20.0;
+      if (Steps = 45) then MinimumUncertainty := 25.0;
       if (dmDVC.cdsGDURecordAges.RecordCount > 0) then
       begin
         dmDVC.cdsGDURecordAges.DisableControls;
@@ -1428,10 +1537,11 @@ begin
     for k := 0 to Steps do
     begin
       if (tempmax < Spectrum2d[k,1]) then tempmax := Spectrum2d[k,1];
+      //if ((iGDUID=11102) and (iCurveOrder=1)) then ShowMessage('k = '+IntToStr(k)+'  '+FormatFloat('####0.00000',tempmax));
     end;
     if (tempmax <= 0.0000001) then tempmax := 1.0e-9;
     tempmax := 100.0/tempmax;
-    //ShowMessage(FormatFloat('####0.00000',tempmax));
+    //if ((iGDUID=11102) and (iCurveOrder=1)) then ShowMessage(FormatFloat('####0.00000',tempmax));
     //ShowMessage('8 '+tRcnMdlID);
     for k := 0 to Steps do
     begin
@@ -1439,7 +1549,7 @@ begin
     end;
     if (tSum <= 0.0) then tSum := 1.0;
     //now insert new records
-    try
+    //try
       for k := 0 to Steps do
       begin
         tCumulative := tCumulative + (Spectrum2d[k,1]*tempmax)/tSum;
@@ -1464,9 +1574,9 @@ begin
           end;
         end;
       end;
-    except
-      WasSuccessful := false;
-    end;
+    //except
+    //  WasSuccessful := false;
+    //end;
   end;
   // update count and maxage values for the GDU just processed
   //ShowMessage('7'+tRcnMdlID);

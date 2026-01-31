@@ -40,10 +40,14 @@ const
   ValueForMetpR : string = 'MetpR';
   ValueForCrsRs : string = 'CrsRs';
   ValueForCool : string = 'Cool';
-  ValueForLIPS : string = 'LIPS';
+  ValueForCoolIntermediate : string = 'CoolI';
+  ValueForCoolLow : string = 'CoolL';
+  ValueForCoolVeryLow : string = 'CoolV';
+  ValueForLIPS : string = 'LIP';
   ValueForDetrital : string = 'Detri';
   ValueForDetrital2DM : string = 'DetDM';
-  ValueForIgneousZr2DM : string = 'IgnDM';
+  ValueForIgneous1Zr2DM : string = 'IgnDM';
+  ValueForIgneous1ZrUPb : string = 'Crys1';
   ValueForSourceTypeA : string = 'A';
   ValueForSourceTypeC : string = 'C';
   ValueForEmptyRecords : string = 'Empty';

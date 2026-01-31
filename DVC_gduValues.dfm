@@ -1,24 +1,31 @@
 object fmGDU_values: TfmGDU_values
   Left = 0
   Top = 0
+  Margins.Left = 4
+  Margins.Top = 4
+  Margins.Right = 4
+  Margins.Bottom = 4
   Caption = 'fmGDU_values'
-  ClientHeight = 242
-  ClientWidth = 363
+  ClientHeight = 303
+  ClientWidth = 454
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -15
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OnClose = FormClose
-  OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 120
+  TextHeight = 20
   object bOK: TButton
-    Left = 88
-    Top = 200
-    Width = 161
-    Height = 25
+    Left = 110
+    Top = 250
+    Width = 201
+    Height = 31
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Caption = 'OK'
     ModalResult = 1
     TabOrder = 0
@@ -27,37 +34,57 @@ object fmGDU_values: TfmGDU_values
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 363
-    Height = 177
+    Width = 454
+    Height = 221
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Align = alTop
     TabOrder = 1
     object lGDUmin: TLabel
-      Left = 24
-      Top = 40
-      Width = 60
-      Height = 15
+      Left = 30
+      Top = 50
+      Width = 78
+      Height = 20
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Caption = 'GDU ID >= '
     end
     object lGDUmax: TLabel
-      Left = 24
-      Top = 104
-      Width = 60
-      Height = 15
+      Left = 30
+      Top = 130
+      Width = 78
+      Height = 20
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       Caption = 'GDU ID <= '
     end
     object eGDUmin: TEdit
-      Left = 104
-      Top = 37
-      Width = 121
-      Height = 23
+      Left = 130
+      Top = 46
+      Width = 151
+      Height = 28
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       TabOrder = 0
       Text = 'eGDUmin'
     end
     object eGDUmax: TEdit
-      Left = 104
-      Top = 101
-      Width = 121
-      Height = 23
+      Left = 130
+      Top = 126
+      Width = 151
+      Height = 28
+      Margins.Left = 4
+      Margins.Top = 4
+      Margins.Right = 4
+      Margins.Bottom = 4
       TabOrder = 1
       Text = 'eGDUmax'
     end

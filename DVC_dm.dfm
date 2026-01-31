@@ -1,6 +1,6 @@
 object dmDVC: TdmDVC
   OnCreate = DataModuleCreate
-  Height = 926
+  Height = 1231
   Width = 1116
   object sqlcDateView: TSQLConnection
     DriverName = 'DevartFirebird'
@@ -8,8 +8,8 @@ object dmDVC: TdmDVC
     Params.Strings = (
       'VendorLibOsx=libfbclient.dylib'
       'GetDriverFunc=getSQLDriverFirebird'
-      'LibraryName=c:\exe64\dbexpida41.dll'
-      'VendorLib=c:\exe64\fbclient.dll'
+      'LibraryName=c:\exe32\dbexpida41.dll'
+      'VendorLib=c:\exe32\fbclient.dll'
       'DataBase=C:\Data\Firebird\DATEVIEW2025V50_UTF8.fdb'
       'User_Name=sysdba'
       'Password=V0lcano3^'
@@ -4082,7 +4082,7 @@ object dmDVC: TdmDVC
     SQL.Strings = (
       'select * '
       'from GDUs'
-      'where GDUs.GDUID < 20000'
+      'where GDUs.GDUID < 30000'
       'and GDUs.RCNMDLID = :RCNMDLID'
       'and GDUs.GDUID >= :GDUMIN'
       'and GDUs.GDUID <= :GDUMAX'
@@ -4748,5 +4748,86 @@ object dmDVC: TdmDVC
     DataSet = cdsGDUSmpdataT1T2Ages
     Left = 1042
     Top = 739
+  end
+  object qGDUSmpdataIncubation: TSQLQuery
+    ObjectView = True
+    MaxBlobSize = -1
+    Params = <
+      item
+        DataType = ftInteger
+        Name = 'GDUID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftWideString
+        Name = 'RcnMdlID'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftWideString
+        Name = 'LithClassID'
+        ParamType = ptInput
+      end>
+    SQL.Strings = (
+      'select   CRATONGDUS.CRATGDUID AS GDUID,'
+      
+        '  SMPDATAZR.age_upb_ma as AGE, SMPDATAZR.age_upb_err_ma as AGEER' +
+        'ROR,'
+      '  SMPDATAZR.T2DM_Ma as T2DM, SMPDATAZR.T2DM_Err_Ma as T2DMERROR,'
+      '  SMPDATAZR.Age_incubation'
+      'from SMPDATAZR,SMPDATAZR_SMP_GDU,CRATONGDUS'
+      'where  CRATONGDUS.CRATGDUID = :GDUID'
+      'and CRATONGDUS.RCNMDLID= :RcnMdlID'
+      'and SMPDATAZR_SMP_GDU.GDUID = CRATONGDUS.GDUID'
+      'and SMPDATAZR_SMP_GDU.SampleNo = SMPDATAZR.SampleNo'
+      'and SMPDATAZR.ConcordClass <= 3'
+      'and SMPDATAZR.LithClassID = :LithClassID'
+      'and SMPDATAZR.AGE_UPB_MA > 0.0'
+      'and SMPDATAZR.AGE_UPB_MA < 5000.0'
+      'and SMPDATAZR.t2dm_ma > 0.0'
+      'and SMPDATAZR.t2dm_ma < 5000.0'
+      'and SMPDATAZR.age_incubation > 0.0'
+      'and SMPDATAZR.age_incubation < 5000.0')
+    SQLConnection = sqlcDateView
+    Left = 756
+    Top = 803
+  end
+  object dspGDUSmpdataIncubation: TDataSetProvider
+    DataSet = qGDUSmpdataIncubation
+    Left = 786
+    Top = 803
+  end
+  object cdsGDUSmpdataIncubation: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    ProviderName = 'dspGDUSmpdataIncubation'
+    Left = 814
+    Top = 803
+    object cdsGDUSmpdataIncubationGDUID: TFMTBCDField
+      FieldName = 'GDUID'
+      Required = True
+      Precision = 20
+      Size = 0
+    end
+    object cdsGDUSmpdataIncubationAGE: TFloatField
+      FieldName = 'AGE'
+    end
+    object cdsGDUSmpdataIncubationAGEERROR: TFloatField
+      FieldName = 'AGEERROR'
+    end
+    object cdsGDUSmpdataIncubationT2DM: TFloatField
+      FieldName = 'T2DM'
+    end
+    object cdsGDUSmpdataIncubationT2DMERROR: TFloatField
+      FieldName = 'T2DMERROR'
+    end
+    object cdsGDUSmpdataIncubationAGE_INCUBATION: TFloatField
+      FieldName = 'AGE_INCUBATION'
+    end
+  end
+  object dsGDUSmpdataIncubation: TDataSource
+    DataSet = cdsGDUSmpdataIncubation
+    Left = 842
+    Top = 803
   end
 end

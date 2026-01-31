@@ -15,9 +15,7 @@ type
     eGDUmin: TEdit;
     eGDUmax: TEdit;
     procedure bOKClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -40,18 +38,21 @@ begin
   eGDUmax.Text  := Trim(eGDUmax.Text);
   Val(eGDUmin.Text,tGDUmin,iCode);
   Val(eGDUmax.Text,tGDUmax,iCode);
-
-end;
-
-procedure TfmGDU_values.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  //
-  Close;
-end;
-
-procedure TfmGDU_values.FormCreate(Sender: TObject);
-begin
-  //
+  if (tGDUmin < 20000) then
+  begin
+    if (tGDUmax >= 20000)  then
+    begin
+      tGDUmax := 19999;
+    end;
+  end else
+  begin
+    if (tGDUmax < 20000)  then
+    begin
+      tGDUmax := 29999;
+    end;
+  end;
+  eGDUmin.Text := IntToStr(tGDUmin);
+  eGDUmax.Text := IntToStr(tGDUmax);
 end;
 
 procedure TfmGDU_values.FormShow(Sender: TObject);
