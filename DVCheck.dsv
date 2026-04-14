@@ -1,8 +1,8 @@
 ﻿[ClosedView_QzpcRGV2RDEzXERWQ2hlY2tcRFZDX21haW4ucGFz]
 Module=C:\DevD13\DVCheck\DVC_main.pas
-CursorX=1
-CursorY=1651
-TopLine=1645
+CursorX=66
+CursorY=2840
+TopLine=2832
 LeftCol=1
 Elisions=
 Bookmarks={7,1210,1}
@@ -77,4 +77,14 @@ LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=C:\DevD13\DVCheck\DVC_constants.pas
+
+[ClosedView_ZGZtLmRtRFZDLnNxbGNEYXRlVmlldy5QYXJhbXM=]
+Module=dfm.dmDVC.sqlcDateView.Params
+CursorX=1
+CursorY=1
+TopLine=1
+LeftCol=1
+Elisions=
+Bookmarks=
+EditViewName=dfm.dmDVC.sqlcDateView.Params
 
