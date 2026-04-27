@@ -107,6 +107,7 @@ type
     GDUCratons1: TMenuItem;
     GDUzrUPb: TMenuItem;
     GDU0180: TMenuItem;
+    Models_LithoPlates1: TMenuItem;
     procedure Referencerecordsexist1Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure Validityrecordsexist1Click(Sender: TObject);
@@ -175,6 +176,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure GDU0180Click(Sender: TObject);
     procedure GDUzrUPbClick(Sender: TObject);
+    procedure Models_LithoPlates1Click(Sender: TObject);
   private
     { Private declarations }
     procedure GetIniFile;
@@ -1110,8 +1112,8 @@ begin
         end;
         if (Sender = UpdateUndefinedRecordLithologies1) then
         begin
-          ShowMessage(dmDVC.cdsRecordIDsLitholSAMPLENO.AsString);
-          ShowMessage(dmDVC.cdsSmpLitholLITHOLOGY.AsString);
+          //ShowMessage(dmDVC.cdsRecordIDsLitholSAMPLENO.AsString);
+          //ShowMessage(dmDVC.cdsSmpLitholLITHOLOGY.AsString);
           dmDVC.qNew.SQL.Clear;
           dmDVC.qNew.SQL.Add('UPDATE ISORGR30');
           dmDVC.qNew.SQL.Add('SET ISORGR30.LITHOLOGY = :ShouldBe');
@@ -1188,6 +1190,7 @@ begin
   except
   end;
   GetIniFile;
+  //ShowMessage('Database = '+dmDVC.sqlcDateView.Params.Text);
   try
     dmDVC.sqlcDateView.Connected := true;
   except
@@ -1229,6 +1232,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1253,6 +1261,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -1282,6 +1295,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -1655,6 +1673,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1683,6 +1706,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -1707,6 +1735,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -1749,13 +1782,13 @@ begin
   DBMonitor := 'Inactive';
   UserControlPath := 'c:/Data/Firebird/UserControl2025v50_utf8.fdb';
   StratDBPath := 'c:/Data/Firebird/StratDB2025v50_utf8.fdb';
-  DateViewPath := 'c:/Data/Firebird/DateView2025v50_utf8.fdb';
+  DateViewPath := 'c:/Data/Firebird/DateView2025v50_utf8_bromo2_20260419.fdb';
   DriverName := 'DevartFirebird';
   DBUserName := 'SYSDBA';
   DBPassword := 'masterkey';
   DBSQLDialectStr := '3';
   DBCharSet := 'UTF8';
-  PublicPath := TPath.GetHomePath;
+  PublicPath := TPath.GetHomePath;  // now uses user's home path
   //PublicPath := TPath.GetPublicPath;   // stay with PublicPath for compatibility with other database web software
   CommonFilePath := TPath.Combine(PublicPath,'EggSoft');
   IniFilePath := CommonFilePath;
@@ -2592,6 +2625,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2620,6 +2658,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -2644,6 +2687,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -2796,6 +2844,7 @@ begin
   tRcnMdlID := 'PalaeoPlat';
   if (Models_PalaeoPlates1.Checked) then tRcnMdlID := 'PalaeoPlat';
   if (Models_Global1.Checked) then tRcnMdlID := 'Global';
+  if (Models_LithoPlates1.Checked) then tRcnMdlID := 'LithoPlate';
   if (GDU2500.Checked) then Steps := 2500;
   if (GDU0180.Checked) then Steps := 180;
   if (GDU0045.Checked) then Steps := 45;
@@ -2918,7 +2967,9 @@ begin
     dmDVC.qGDURECORDAGES.SQL.Add('order by ISORGR30.RECORDID');
   end;
   if (iCurveOrder = 1) then dmUser.SetDeveloperData(dmDVC.qGDURecordAges.SQL.Text);
+  if (iCurveOrder = 3) then dmUser.SetDeveloperData(dmDVC.qGDURecordAges.SQL.Text);
 
+  //ShowMessage(dmDVC.qGDURECORDAGES.SQL.Text);
   //ShowMessage('AgeProbabilities 4');
   //CurveOrder = 4 i.e. for detrital individual analyses
   //CurveOrder = 5 i.e. for crustal residence ages derived from detrital individual analyses
@@ -3287,6 +3338,7 @@ begin
   dmDVC.qGDUs.ParamByName('RCNMDLID').AsString := tRcnMdlID;
   dmDVC.qGDUs.ParamByName('GDUMIN').AsInteger := GDUfrom;
   dmDVC.qGDUs.ParamByName('GDUMAX').AsInteger := GDUto;
+  //ShowMessage(dmDVC.qGDUs.sql.Text);
   dmDVC.cdsGDUs.Open;
   //tCurveInterp := 'Crys';
   iCountRecords := 0;
@@ -3313,6 +3365,7 @@ begin
       iGDUID := dmDVC.cdsGDUsGDUID.AsInteger;
       StatusBar1.Panels[3].Text := IntToStr(iGDUID);
       StatusBar1.Refresh;
+      //if (iGDUID < 20005) then ShowMessage('GDUID = '+IntToStr(iGDUID));
       Application.ProcessMessages;
       WasSuccessful := true;
       //dmUser.SetDeveloperData('GDUID is '+IntToStr(iGDUID)+'***'+tCurveInterp);
@@ -3357,6 +3410,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -3519,6 +3577,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3543,6 +3606,11 @@ begin
   GDUfrom := 10000;
   GDUto := 19999;
   if GDUCratons1.Checked then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
   begin
     GDUfrom := 20000;
     GDUto := 29999;
@@ -3911,6 +3979,11 @@ begin
     GDUfrom := 20000;
     GDUto := 29999;
   end;
+  if ((not GDUCratons1.Checked) and (Models_LithoPlates1.Checked)) then
+  begin
+    GDUfrom := 20000;
+    GDUto := 29999;
+  end;
   try
     SelectGDUForm := TfmGDU_values.Create(Self);
     SelectGDUForm.tGDUmin := GDUfrom;
@@ -3930,12 +4003,14 @@ procedure TDVCmain.Models_Global1Click(Sender: TObject);
 begin
   Models_Global1.Checked := true;
   Models_PalaeoPlates1.Checked := false;
+  Models_LithoPlates1.Checked := false;
 end;
 
 procedure TDVCmain.Models_PalaeoPlates1Click(Sender: TObject);
 begin
   Models_PalaeoPlates1.Checked := true;
   Models_Global1.Checked := false;
+  Models_LithoPlates1.Checked := false;
 end;
 
 procedure TDVCmain.MaxAgeReferences1Click(Sender: TObject);
@@ -3958,6 +4033,9 @@ var
   tInterp : string;
 begin
   tRcnMdlID := 'PalaeoPlat';
+  if (Models_PalaeoPlates1.Checked) then tRcnMdlID := 'PalaeoPlat';
+  if (Models_Global1.Checked) then tRcnMdlID := 'Global';
+  if (Models_LithoPlates1.Checked) then tRcnMdlID := 'LithoPlate';
   StatusBar1.Panels[0].Text := ' ';
   StatusBar1.Panels[1].Text := ' ';
   StatusBar1.Panels[2].Text := ' ';
@@ -4052,6 +4130,13 @@ begin
   GDU0045.Checked := false;
   GDU0180.Checked := true;
   GDU2500.Checked := false;
+end;
+
+procedure TDVCmain.Models_LithoPlates1Click(Sender: TObject);
+begin
+  Models_Global1.Checked := false;
+  Models_PalaeoPlates1.Checked := false;
+  Models_LithoPlates1.Checked := true;
 end;
 
 end.

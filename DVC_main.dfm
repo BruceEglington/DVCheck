@@ -629,6 +629,10 @@ object DVCmain: TDVCmain
         Caption = 'Global'
         OnClick = Models_Global1Click
       end
+      object Models_LithoPlates1: TMenuItem
+        Caption = 'LithoPlates'
+        OnClick = Models_LithoPlates1Click
+      end
     end
   end
 end

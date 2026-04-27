@@ -1,18 +1,18 @@
 ﻿[ClosedView_QzpcRGV2RDEzXERWQ2hlY2tcRFZDX21haW4ucGFz]
 Module=C:\DevD13\DVCheck\DVC_main.pas
-CursorX=66
-CursorY=2840
-TopLine=2832
+CursorX=34
+CursorY=1193
+TopLine=1190
 LeftCol=1
 Elisions=
-Bookmarks={7,1210,1}
+Bookmarks={7,3948,1}
 EditViewName=C:\DevD13\DVCheck\DVC_main.pas
 
 [ClosedView_QzpcRGV2RDEzXERWQ2hlY2tcRFZDX2RtLnBhcw==]
 Module=C:\DevD13\DVCheck\DVC_dm.pas
-CursorX=31
-CursorY=660
-TopLine=643
+CursorX=2
+CursorY=868
+TopLine=895
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -70,9 +70,9 @@ EditViewName=
 
 [ClosedView_QzpcRGV2RDEzXERWQ2hlY2tcRFZDX2NvbnN0YW50cy5wYXM=]
 Module=C:\DevD13\DVCheck\DVC_constants.pas
-CursorX=30
-CursorY=57
-TopLine=18
+CursorX=37
+CursorY=50
+TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
